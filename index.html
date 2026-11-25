@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Voting System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px #ccc;
+        }
+
+        h1 {
+            text-align: center;
+            color: #174ea6;
+        }
+
+        h3 {
+            color: #333;
+        }
+
+        .candidate {
+            background: #eef4ff;
+            padding: 15px;
+            margin: 12px 0;
+            border-radius: 8px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #174ea6;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0d3475;
+        }
+
+        .results {
+            margin-top: 25px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+        }
+
+        .result-item {
+            margin: 12px 0;
+        }
+
+        .bar {
+            background: #174ea6;
+            height: 12px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: gray;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Online Voting System</h1>
+
+    <p style="text-align:center;">
+        Welcome! Please select your candidate.
+    </p>
+
+    <h3>Choose Your Candidate</h3>
+
+    <form id="votingForm">
+
+        <div class="candidate">
+            <input type="radio" name="candidate"
+            value="Candidate A" required>
+            Candidate A
+        </div>
+
+        <div class="candidate">
+            <input type="radio" name="candidate"
+            value="Candidate B">
+            Candidate B
+        </div>
+
+        <div class="candidate">
+            <input type="radio" name="candidate"
+            value="Candidate C">
+            Candidate C
+        </div>
+
+        <button type="submit">SUBMIT VOTE</button>
+
+    </form>
+
+    <div class="results">
+        <h3>Voting Results</h3>
+        <div id="results"></div>
+    </div>
+
+    <footer>
+        Online Voting System | School Project
+    </footer>
+
+</div>
+
+<script>
+
+    let votes = JSON.parse(
+        localStorage.getItem("votes")
+    ) || {
+        "Candidate A": 0,
+        "Candidate B": 0,
+        "Candidate C": 0
+    };
+
+    function displayResults() {
+
+        let total = Object.values(votes).reduce(
+            (a, b) => a + b, 0
+        );
+
+        let output = "";
+
+        for (let candidate in votes) {
+
+            let percentage = total === 0
+                ? 0
+                : (votes[candidate] / total) * 100;
+
+            output += `
+                <div class="result-item">
+                    <strong>${candidate}</strong>
+                    : ${votes[candidate]} votes
+                    <div class="bar"
+                    style="width:${percentage}%;"></div>
+                </div>
+            `;
+        }
+
+        document.getElementById("results").innerHTML =
+            output;
+    }
+
+    document.getElementById("votingForm")
+    .addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        if (localStorage.getItem("hasVoted")) {
+            alert("You have already voted!");
+            return;
+        }
+
+        let selected = document.querySelector(
+            'input[name="candidate"]:checked'
+        );
+
+        if (!selected) {
+            alert("Please select a candidate!");
+            return;
+        }
+
+        votes[selected.value]++;
+
+        localStorage.setItem(
+            "votes", JSON.stringify(votes)
+        );
+
+        localStorage.setItem("hasVoted", "true");
+
+        alert("Your vote has been submitted!");
+
+        displayResults();
+
+        document.getElementById("votingForm").reset();
+
+    });
+
+    displayResults();
+
+</script>
+
+</body>
+  </html>
+  
