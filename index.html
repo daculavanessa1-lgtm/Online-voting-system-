@@ -1,325 +1,50 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Online Voting System</title>
+<section id="admin-dashboard">
+  <h2>Admin Dashboard</h2>
+
+  <h3>Election Results</h3>
+  <p>Total Votes: <span id="total-votes">0</span></p>
+
+  <div id="admin-results">
+    Loading results...
+  </div>
+</section>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background: #eaf0f8;
-    padding: 20px;
-}
-.container {
-    max-width: 450px;
-    margin: auto;
-    background: white;
-    padding: 22px;
-    border-radius: 12px;
-    box-shadow: 0 3px 10px #ccc;
-}
-h1 {
-    text-align: center;
-    color: #174ea6;
-}
-input {
-    width: 95%;
-    padding: 12px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
-button {
-    width: 100%;
-    padding: 13px;
-    margin-top: 10px;
-    background: #174ea6;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-}
-.secondary {
-    background: #555;
-}
-.candidate {
-    background: #eef3ff;
-    padding: 15px;
-    margin: 10px 0;
-    border-radius: 7px;
-}
-.results {
-    background: #e8f5e9;
-    padding: 15px;
-    margin-top: 20px;
-    border-radius: 8px;
-}
-.hidden {
-    display: none;
+#admin-dashboard {
+  background: #f1f5f9;
+  padding: 20px;
+  margin: 20px;
+  border-radius: 10px;
+  color: #222;
 }
 </style>
-</head>
-
-<body>
-
-<div class="container">
-
-<h1>Online Voting System</h1>
-
-<!-- REGISTRATION -->
-<div id="registerPage">
-
-<h2>Voter Registration</h2>
-
-<input id="regName" type="text"
-placeholder="Full Name">
-
-<input id="regID" type="text"
-placeholder="Student ID">
-
-<input id="regPassword" type="password"
-placeholder="Create Password">
-
-<button onclick="register()">REGISTER</button>
-
-<p>Already registered?</p>
-<button class="secondary"
-onclick="showLogin()">LOGIN</button>
-
-</div>
-
-<!-- LOGIN -->
-<div id="loginPage" class="hidden">
-
-<h2>Voter Login</h2>
-
-<input id="loginID" type="text"
-placeholder="Student ID">
-
-<input id="loginPassword" type="password"
-placeholder="Password">
-
-<button onclick="login()">LOGIN</button>
-
-<p>Not registered yet?</p>
-<button class="secondary"
-onclick="showRegister()">REGISTER</button>
-
-</div>
-
-<!-- VOTING -->
-<div id="votingPage" class="hidden">
-
-<h2>Welcome, <span id="voterName"></span>!</h2>
-
-<button class="secondary"
-onclick="logout()">LOGOUT</button>
-
-<h3>Choose Your Candidate</h3>
-
-<form id="votingForm">
-
-<div class="candidate">
-<input type="radio" name="candidate"
-value="Candidate A" required>
-Candidate A
-</div>
-
-<div class="candidate">
-<input type="radio" name="candidate"
-value="Candidate B">
-Candidate B
-</div>
-
-<div class="candidate">
-<input type="radio" name="candidate"
-value="Candidate C">
-Candidate C
-</div>
-
-<button type="submit">SUBMIT VOTE</button>
-
-</form>
-
-<div class="results">
-<h3>Voting Results</h3>
-<div id="results"></div>
-</div>
-
-</div>
-
-</div>
 
 <script>
+function updateAdminDashboard() {
+  const votes = JSON.parse(
+    localStorage.getItem("votes") || "{}"
+  );
 
-// Load saved information
-let voters = JSON.parse(
-localStorage.getItem("voters")) || {};
+  let total = 0;
+  let results = "";
 
-let votes = JSON.parse(
-localStorage.getItem("votes")) || {
-"Candidate A": 0,
-"Candidate B": 0,
-"Candidate C": 0
-};
+  for (const candidate in votes) {
+    total += Number(votes[candidate]);
 
-let currentUser = null;
+    results += `
+      <p>${candidate}: ${votes[candidate]} votes</p>
+    `;
+  }
 
-// Save information
-function saveData() {
-localStorage.setItem("voters",
-JSON.stringify(voters));
+  document.getElementById("total-votes").textContent = total;
 
-localStorage.setItem("votes",
-JSON.stringify(votes));
+  document.getElementById("admin-results").innerHTML =
+    results || "No votes recorded yet.";
 }
 
-// Registration
-function register() {
-
-let name = document.getElementById("regName").value.trim();
-let id = document.getElementById("regID").value.trim();
-let password = document.getElementById("regPassword").value;
-
-if (!name || !id || !password) {
-alert("Please complete all fields!");
-return;
-}
-
-if (voters[id]) {
-alert("Student ID already registered!");
-return;
-}
-
-voters[id] = {
-name: name,
-password: password,
-hasVoted: false
-};
-
-saveData();
-
-alert("Registration successful! Please login.");
-
-document.getElementById("regName").value = "";
-document.getElementById("regID").value = "";
-document.getElementById("regPassword").value = "";
-
-showLogin();
-}
-
-// Login
-function login() {
-
-let id = document.getElementById("loginID").value.trim();
-let password = document.getElementById("loginPassword").value;
-
-if (!voters[id] ||
-voters[id].password !== password) {
-alert("Invalid Student ID or Password!");
-return;
-}
-
-currentUser = id;
-
-document.getElementById("voterName").textContent =
-voters[id].name;
-
-document.getElementById("registerPage").classList.add("hidden");
-document.getElementById("loginPage").classList.add("hidden");
-document.getElementById("votingPage").classList.remove("hidden");
-
-showResults();
-
-if (voters[id].hasVoted) {
-alert("You have already voted!");
-}
-
-}
-
-// Logout
-function logout() {
-
-currentUser = null;
-
-document.getElementById("votingPage").classList.add("hidden");
-document.getElementById("loginPage").classList.remove("hidden");
-
-}
-
-// Page navigation
-function showLogin() {
-document.getElementById("registerPage").classList.add("hidden");
-document.getElementById("loginPage").classList.remove("hidden");
-}
-
-function showRegister() {
-document.getElementById("loginPage").classList.add("hidden");
-document.getElementById("registerPage").classList.remove("hidden");
-}
-
-// Voting
-document.getElementById("votingForm")
-.addEventListener("submit", function(event) {
-
-event.preventDefault();
-
-if (!currentUser) {
-alert("Please login first!");
-return;
-}
-
-if (voters[currentUser].hasVoted) {
-alert("You have already voted!");
-return;
-}
-
-let selected = document.querySelector(
-'input[name="candidate"]:checked'
-);
-
-if (!selected) {
-alert("Please select a candidate!");
-return;
-}
-
-votes[selected.value]++;
-
-voters[currentUser].hasVoted = true;
-
-saveData();
-
-alert("Your vote has been submitted!");
-
-this.reset();
-
-showResults();
-
-});
-
-// Display results
-function showResults() {
-
-let output = "";
-
-for (let candidate in votes) {
-
-output += "<p><b>" + candidate +
-":</b> " + votes[candidate] +
-" votes</p>";
-
-}
-
-document.getElementById("results").innerHTML =
-output;
-
-}
-
+updateAdminDashboard();
 </script>
 
-</body>
-</html>
 
   
