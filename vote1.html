@@ -3,55 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Online Voting System</title>
+  <title>Admin Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
-    .card { background: white; padding: 25px; border-radius: 12px; max-width: 420px; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h1 { color: #1a4b9c; text-align: center; margin-bottom: 5px; }
-    .subtitle { text-align: center; color: #555; margin-bottom: 20px; }
-    .option { display: block; background: #edf2f7; padding: 14px; margin: 10px 0; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    button { width: 100%; background: #1a4b9c; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    button:disabled { background: #a0aec0; cursor: not-allowed; }
-    .results { background: #e6f4ea; padding: 15px; border-radius: 8px; margin-top: 20px; }
-    .bar-bg { background: #cbd5e0; height: 10px; border-radius: 5px; overflow: hidden; margin: 6px 0 14px; }
-    .bar-fill { background: #1a4b9c; height: 100%; width: 0%; transition: width 0.3s; }
-    .footer { text-align: center; font-size: 12px; color: #777; margin-top: 20px; }
+    body { font-family: Georgia, serif; background: #ffffff; display: flex; justify-content: center; padding: 30px; }
+    .panel { background: #f1f5f9; padding: 25px; border-radius: 12px; max-width: 420px; width: 100%; }
+    button { background: #dc2626; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; margin-top: 15px; }
   </style>
 </head>
 <body>
 
-<div class="card">
-  <h1>Online Voting System</h1>
-  <p class="subtitle">Welcome! Please select your candidate.</p>
-
-  <h3>Choose Your Candidate</h3>
-  <label class="option"><input type="radio" name="candidate" value="A"> Candidate A</label>
-  <label class="option"><input type="radio" name="candidate" value="B"> Candidate B</label>
-  <label class="option"><input type="radio" name="candidate" value="C"> Candidate C</label>
-
-  <button id="voteBtn" onclick="submitVote()">SUBMIT VOTE</button>
-
-  <div class="results">
-    <h3>Voting Results</h3>
-    <div>Candidate A: <span id="countA">0</span> votes</div>
-    <div class="bar-bg"><div id="barA" class="bar-fill"></div></div>
-
-    <div>Candidate B: <span id="countB">0</span> votes</div>
-    <div class="bar-bg"><div id="barB" class="bar-fill"></div></div>
-
-    <div>Candidate C: <span id="countC">0</span> votes</div>
-    <div class="bar-bg"><div id="barC" class="bar-fill"></div></div>
-  </div>
-
-  <div class="footer">Online Voting System | School Project</div>
+<div class="panel">
+  <h1>Admin Dashboard</h1>
+  <h3>Election Results</h3>
+  <p>Total Votes: <span id="total">0</span></p>
+  <p>Candidate A: <span id="adminA">0</span> votes</p>
+  <p>Candidate B: <span id="adminB">0</span> votes</p>
+  <p>Candidate C: <span id="adminC">0</span> votes</p>
+  <button onclick="resetVotes()">Reset Election</button>
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://gstatic.com";
-  import { getDatabase, ref, runTransaction, onValue } from "https://gstatic.com";
+  import { getDatabase, ref, onValue, set } from "https://gstatic.com";
 
-  // PASTE YOUR FIREBASE CONFIG HERE
+  // PASTE THE SAME FIREBASE CONFIG HERE
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_://firebaseapp.com",
@@ -66,47 +41,26 @@
   const db = getDatabase(app);
   const votesRef = ref(db, 'votes');
 
-  // Check if this browser already voted
-  if (localStorage.getItem('hasVoted') === 'true') {
-    document.getElementById('voteBtn').disabled = true;
-    document.getElementById('voteBtn').innerText = "YOU ALREADY VOTED";
-  }
-
-  // Listen for live updates from Firebase
   onValue(votesRef, (snapshot) => {
     const data = snapshot.val() || { A: 0, B: 0, C: 0 };
-    const total = (data.A || 0) + (data.B || 0) + (data.C || 0);
+    const a = data.A || 0;
+    const b = data.B || 0;
+    const c = data.C || 0;
 
-    document.getElementById('countA').innerText = data.A || 0;
-    document.getElementById('countB').innerText = data.B || 0;
-    document.getElementById('countC').innerText = data.C || 0;
-
-    document.getElementById('barA').style.width = total ? ((data.A || 0) / total * 100) + '%' : '0%';
-    document.getElementById('barB').style.width = total ? ((data.B || 0) / total * 100) + '%' : '0%';
-    document.getElementById('barC').style.width = total ? ((data.C || 0) / total * 100) + '%' : '0%';
+    document.getElementById('adminA').innerText = a;
+    document.getElementById('adminB').innerText = b;
+    document.getElementById('adminC').innerText = c;
+    document.getElementById('total').innerText = a + b + c;
   });
 
-  // Submit Vote Function
-  window.submitVote = function() {
-    if (localStorage.getItem('hasVoted') === 'true') return;
-
-    const selected = document.querySelector('input[name="candidate"]:checked');
-    if (!selected) {
-      alert("Please select a candidate first!");
-      return;
+  window.resetVotes = function() {
+    const pass = prompt("Enter Admin Password to reset:");
+    if (pass === "admin123") {
+      set(votesRef, { A: 0, B: 0, C: 0 });
+      alert("All votes have been reset to 0.");
+    } else {
+      alert("Incorrect password.");
     }
-
-    const choice = selected.value;
-    const candidateRef = ref(db, 'votes/' + choice);
-
-    runTransaction(candidateRef, (currentVotes) => {
-      return (currentVotes || 0) + 1;
-    }).then(() => {
-      localStorage.setItem('hasVoted', 'true');
-      document.getElementById('voteBtn').disabled = true;
-      document.getElementById('voteBtn').innerText = "VOTE SUBMITTED!";
-      alert("Thank you for voting!");
-    });
   };
 </script>
 
