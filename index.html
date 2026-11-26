@@ -1,201 +1,177 @@
+const banner = document.getElementById('banner');
+const userBar = document.getElementById('userBar');
+const authSection = document.getElementById('authSection');
+const voteStatusText = document.getElementById('voteStatusText');
+const candidatesList = document.getElementById('candidatesList');
+const resultsList = document.getElementById('resultsList');
+const totalVotesLabel = document.getElementById('totalVotesLabel');
 
-    
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Online Voting System</title>
+let currentState = { user: null, hasVoted: false, votedFor: null };
+let currentCandidates = [];
 
-<style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+function showBanner(message, type = 'success') {
+  banner.textContent = message;
+  banner.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  background: #edf4ff;
-  color: #18345b;
+function clearBanner() {
+  banner.className = 'alert hidden';
+  banner.textContent = '';
 }
 
-header {
-  background: linear-gradient(135deg,#0755b5,#1689ed);
-  color: white;
-  text-align: center;
-  padding: 30px 15px;
-  box-shadow: 0 7px 18px #174d9160;
+async function api(url, options = {}) {
+  const res = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Request failed');
+  }
+  return data;
 }
 
-header h1 {
-  font-size: 28px;
-  text-shadow: 2px 3px 5px #123d70;
+function renderAuth() {
+  if (currentState.user) {
+    authSection.classList.add('hidden');
+    userBar.innerHTML = `
+      <span style="margin-right: 0.75rem;">Signed in as <strong>${escapeHtml(currentState.user.name)}</strong></span>
+      <button id="logoutBtn" class="secondary">Log Out</button>
+    `;
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await api('/api/logout', { method: 'POST' });
+      clearBanner();
+      await refreshAll();
+    });
+  } else {
+    authSection.classList.remove('hidden');
+    userBar.innerHTML = `<span style="color: #d1d5db; font-size: 0.9rem;">Not signed in</span>`;
+  }
 }
 
-header p {
-  margin-top: 10px;
-}
-
-.container {
-  max-width: 850px;
-  margin: 25px auto;
-  padding: 15px;
-}
-
-.card {
-  background: white;
-  padding: 23px;
-  margin-bottom: 22px;
-  border-radius: 18px;
-  box-shadow: 0 7px 0 #c5dcf7,
-              0 12px 25px #254e7a25;
-}
-
-h2 {
-  color: #0755b5;
-  margin-bottom: 18px;
-}
-
-input {
-  width: 100%;
-  padding: 13px;
-  margin: 8px 0;
-  border: 1px solid #b8d2f3;
-  border-radius: 10px;
-  font-size: 16px;
-}
-
-button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 12px;
-  background: linear-gradient(135deg,#0862c8,#239cf5);
-  color: white;
-  border: none;
-  border-radius: 11px;
-  font-size: 16px;
-  font-weight: bold;
-  box-shadow: 0 5px 0 #06458c;
-  cursor: pointer;
-}
-
-button:active {
-  transform: translateY(4px);
-  box-shadow: 0 1px 0 #06458c;
-}
-
-.candidate {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 15px;
-  margin: 12px 0;
-  border-radius: 12px;
-  background: #f0f6ff;
-  border: 1px solid #c5dcf7;
-}
-
-.candidate input {
-  width: auto;
-}
-
-.stat {
-  background: #e6f2ff;
-  padding: 15px;
-  border-radius: 12px;
-  margin: 10px 0;
-  font-weight: bold;
-}
-
-footer {
-  background: #0755b5;
-  color: white;
-  text-align: center;
-  padding: 20px;
-}
-</style>
-</head>
-
-<body>
-
-<header>
-  <h1>ONLINE VOTING SYSTEM</h1>
-  <p>Organization Election Management Portal</p>
-</header>
-
-<div class="container">
-
-<div class="card">
-  <h2>📊 Election Dashboard</h2>
-  <div class="stat">
-    Total Candidates: <span id="candidateCount">3</span>
-  </div>
-  <div class="stat">
-    Total Votes: <span id="totalVotes">0</span>
-  </div>
-  <div class="stat">
-    Election Status: <span>Ongoing (Demo)</span>
-  </div>
-</div>
-
-<div class="card">
-  <h2>🗳️ Cast Your Vote</h2>
-
-  <input type="text" id="voter"
-  placeholder="Enter your voter ID">
-
-  <h3>Select Your Candidate</h3>
-
-  <label class="candidate">
-    <input type="radio" name="candidate" value="Candidate 1">
-    Candidate 1
-  </label>
-
-  <label class="candidate">
-    <input type="radio" name="candidate" value="Candidate 2">
-    Candidate 2
-  </label>
-
-  <label class="candidate">
-    <input type="radio" name="candidate" value="Candidate 3">
-    Candidate 3
-  </label> 
-
-    
-<section id="adminDashboard" style="display:none; max-width:900px; margin:30px auto; padding:25px; background:#eaf3ff; border-radius:15px; font-family:Arial;">
-  <h2 style="color:#0756a5;">Admin Dashboard</h2>
-  <p>Organization Election Management</p>
-
-  <div style="background:white;padding:20px;border-radius:12px;">
-    <h3>Total Votes</h3>
-    <h1 id="adminTotalVotes">0</h1>
-  </div>
-
-  <h3>Election Results</h3>
-  <div id="adminResults">No results available.</div>
-
-  <button onclick="updateAdminDashboard()" style="background:#0756a5;color:white;padding:12px;border:0;border-radius:8px;">
-    Refresh Results
-  </button>
-</section>
-
-<script>
-function updateAdminDashboard() {
-  const votes = JSON.parse(localStorage.getItem("votes") || "{}");
-  let total = 0;
-  let results = "";
-
-  for (const candidate in votes) {
-    total += Number(votes[candidate]);
-    results += `<p>${candidate}: ${votes[candidate]} votes</p>`;
+function renderCandidates() {
+  if (!currentState.user) {
+    voteStatusText.textContent = 'Log in above to cast your ballot. Each account gets one vote.';
+  } else if (currentState.hasVoted) {
+    voteStatusText.textContent = `You have already voted for ${currentState.votedFor}.`;
+  } else {
+    voteStatusText.textContent = 'Select a candidate below to submit your single vote.';
   }
 
-  document.getElementById("adminTotalVotes").textContent = total;
-  document.getElementById("adminResults").innerHTML =
-    results || "No votes submitted yet.";
+  const canVote = Boolean(currentState.user) && !currentState.hasVoted;
+
+  candidatesList.innerHTML = currentCandidates
+    .map(
+      (c) => `
+      <div class="candidate">
+        <div>
+          <div class="party">${escapeHtml(c.party)}</div>
+          <h3 style="margin: 0.25rem 0;">${escapeHtml(c.name)}</h3>
+          <p class="bio">${escapeHtml(c.bio || '')}</p>
+        </div>
+        <button data-vote-id="${c.id}" ${canVote ? '' : 'disabled'}>
+          ${currentState.hasVoted ? 'Vote Recorded' : 'Vote'}
+        </button>
+      </div>
+    `
+    )
+    .join('');
+
+  candidatesList.querySelectorAll('button[data-vote-id]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const candidateId = Number(btn.dataset.voteId);
+      try {
+        const res = await api('/api/vote', {
+          method: 'POST',
+          body: JSON.stringify({ candidateId })
+        });
+        showBanner(res.message, 'success');
+        await refreshAll();
+      } catch (err) {
+        showBanner(err.message, 'error');
+      }
+    });
+  });
 }
-</script>
+
+function renderResults(data) {
+  totalVotesLabel.textContent = `${data.totalVotes} total ${data.totalVotes === 1 ? 'vote' : 'votes'}`;
+
+  resultsList.innerHTML = data.candidates
+    .map((c) => {
+      const pct = data.totalVotes > 0 ? Math.round((c.vote_count / data.totalVotes) * 100) : 0;
+      return `
+        <div class="result-row">
+          <div class="result-meta">
+            <span>${escapeHtml(c.name)} (${escapeHtml(c.party)})</span>
+            <span>${c.vote_count} (${pct}%)</span>
+          </div>
+          <div class="bar-bg">
+            <div class="bar-fill" style="width: ${pct}%;"></div>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
+async function refreshAll() {
+  const [me, results] = await Promise.all([api('/api/me'), api('/api/results')]);
+  currentState = me;
+  currentCandidates = results.candidates;
+  renderAuth();
+  renderCandidates();
+  renderResults(results);
+}
+
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearBanner();
+  try {
+    await api('/api/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: document.getElementById('loginEmail').value,
+        password: document.getElementById('loginPassword').value
+      })
+    });
+    showBanner('Logged in successfully.', 'success');
+    await refreshAll();
+  } catch (err) {
+    showBanner(err.message, 'error');
+  }
+});
+
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearBanner();
+  try {
+    await api('/api/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: document.getElementById('regName').value,
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value
+      })
+    });
+    showBanner('Account created and logged in.', 'success');
+    await refreshAll();
+  } catch (err) {
+    showBanner(err.message, 'error');
+  }
+});
+
+refreshAll().catch((err) => showBanner(err.message, 'error'));
+        
+    
     
 
     
