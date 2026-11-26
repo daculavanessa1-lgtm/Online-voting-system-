@@ -160,6 +160,42 @@ footer {
   <label class="candidate">
     <input type="radio" name="candidate" value="Candidate 3">
     Candidate 3
-  </label>
+  </label> 
+
+    
+<section id="adminDashboard" style="display:none; max-width:900px; margin:30px auto; padding:25px; background:#eaf3ff; border-radius:15px; font-family:Arial;">
+  <h2 style="color:#0756a5;">Admin Dashboard</h2>
+  <p>Organization Election Management</p>
+
+  <div style="background:white;padding:20px;border-radius:12px;">
+    <h3>Total Votes</h3>
+    <h1 id="adminTotalVotes">0</h1>
+  </div>
+
+  <h3>Election Results</h3>
+  <div id="adminResults">No results available.</div>
+
+  <button onclick="updateAdminDashboard()" style="background:#0756a5;color:white;padding:12px;border:0;border-radius:8px;">
+    Refresh Results
+  </button>
+</section>
+
+<script>
+function updateAdminDashboard() {
+  const votes = JSON.parse(localStorage.getItem("votes") || "{}");
+  let total = 0;
+  let results = "";
+
+  for (const candidate in votes) {
+    total += Number(votes[candidate]);
+    results += `<p>${candidate}: ${votes[candidate]} votes</p>`;
+  }
+
+  document.getElementById("adminTotalVotes").textContent = total;
+  document.getElementById("adminResults").innerHTML =
+    results || "No votes submitted yet.";
+}
+</script>
+    
 
     
