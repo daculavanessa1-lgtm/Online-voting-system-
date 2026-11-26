@@ -77,10 +77,10 @@
         placeholder="Enter Voter Name">
 
         <select id="candidate">
-            <option value="">Select Candidate</option>
-            <option value="Nominee A">Candidate A</option>
-            <option value="Nominee B">Candidate B</option>
-            <option value="Nominee C">Candidate C</option>
+            <option value="">Select Nominee</option>
+            <option value="Nominee A">Nominee A</option>
+            <option value="Nominee B">Nominee B</option>
+            <option value="Nominee C">Nominee C</option>
         </select>
 
         <button onclick="submitVote()">Submit Vote</button>
@@ -156,7 +156,7 @@ function showResults() {
     let output = "<h3>Voting Results</h3>";
 
     for (let candidate in votes) {
-        output += candidate + ": " + votes[candidate] +
+        output += nominee + ": " + votes[nominee] +
         " votes<br>";
 
         total += votes[nominee];
