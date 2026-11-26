@@ -1,177 +1,380 @@
-const banner = document.getElementById('banner');
-const userBar = document.getElementById('userBar');
-const authSection = document.getElementById('authSection');
-const voteStatusText = document.getElementById('voteStatusText');
-const candidatesList = document.getElementById('candidatesList');
-const resultsList = document.getElementById('resultsList');
-const totalVotesLabel = document.getElementById('totalVotesLabel');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Voting System</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --success: #16a34a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 720px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      line-height: 1.5;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    h1 { font-size: 1.5rem; margin: 0; }
+    h2 { font-size: 1.15rem; margin-top: 0; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+    }
+    .row:last-child { border-bottom: none; padding-bottom: 0; }
+    .form-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    input {
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      flex: 1 1 160px;
+    }
+    button {
+      padding: 0.55rem 1rem;
+      border: none;
+      border-radius: 6px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    button:hover:not(:disabled) { background: var(--primary-hover); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button.secondary { background: #475569; }
+    button.danger { background: var(--danger); }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #e0e7ff;
+      color: #1e40af;
+    }
+    .progress-wrap {
+      background: #e2e8f0;
+      border-radius: 999px;
+      height: 8px;
+      width: 100%;
+      margin-top: 0.4rem;
+      overflow: hidden;
+    }
+    .progress-bar {
+      background: var(--primary);
+      height: 100%;
+      transition: width 0.25s ease;
+    }
+    #alert {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      display: none;
+    }
+    #alert.error { display: block; background: #fee2e2; color: #991b1b; }
+    #alert.success { display: block; background: #dcfce7; color: #166534; }
+    .muted { color: var(--muted); font-size: 0.88rem; }
+  </style>
+</head>
+<body>
 
-let currentState = { user: null, hasVoted: false, votedFor: null };
-let currentCandidates = [];
+  <header>
+    <div>
+      <h1 id="election-title">Student Council Election 2026</h1>
+      <span class="muted">Single-Page Voting Portal</span>
+    </div>
+    <button class="secondary" onclick="toggleAdmin()">Admin Panel</button>
+  </header>
 
-function showBanner(message, type = 'success') {
-  banner.textContent = message;
-  banner.className = `alert ${type === 'error' ? 'alert-error' : 'alert-success'}`;
-}
+  <div id="alert"></div>
 
-function clearBanner() {
-  banner.className = 'alert hidden';
-  banner.textContent = '';
-}
+  <!-- Voter Auth -->
+  <div id="auth-card" class="card">
+    <h2>Voter Sign In / Register</h2>
+    <p class="muted">Enter a Voter ID and PIN to register or sign in. Each Voter ID can cast one ballot.</p>
+    <div class="form-group">
+      <input id="voter-id" type="text" placeholder="Voter ID (e.g., V1001)" />
+      <input id="voter-pin" type="password" placeholder="4+ digit PIN" />
+      <button onclick="loginOrRegister()">Continue</button>
+    </div>
+  </div>
 
-async function api(url, options = {}) {
-  const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.error || 'Request failed');
-  }
-  return data;
-}
-
-function renderAuth() {
-  if (currentState.user) {
-    authSection.classList.add('hidden');
-    userBar.innerHTML = `
-      <span style="margin-right: 0.75rem;">Signed in as <strong>${escapeHtml(currentState.user.name)}</strong></span>
-      <button id="logoutBtn" class="secondary">Log Out</button>
-    `;
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await api('/api/logout', { method: 'POST' });
-      clearBanner();
-      await refreshAll();
-    });
-  } else {
-    authSection.classList.remove('hidden');
-    userBar.innerHTML = `<span style="color: #d1d5db; font-size: 0.9rem;">Not signed in</span>`;
-  }
-}
-
-function renderCandidates() {
-  if (!currentState.user) {
-    voteStatusText.textContent = 'Log in above to cast your ballot. Each account gets one vote.';
-  } else if (currentState.hasVoted) {
-    voteStatusText.textContent = `You have already voted for ${currentState.votedFor}.`;
-  } else {
-    voteStatusText.textContent = 'Select a candidate below to submit your single vote.';
-  }
-
-  const canVote = Boolean(currentState.user) && !currentState.hasVoted;
-
-  candidatesList.innerHTML = currentCandidates
-    .map(
-      (c) => `
-      <div class="candidate">
-        <div>
-          <div class="party">${escapeHtml(c.party)}</div>
-          <h3 style="margin: 0.25rem 0;">${escapeHtml(c.name)}</h3>
-          <p class="bio">${escapeHtml(c.bio || '')}</p>
-        </div>
-        <button data-vote-id="${c.id}" ${canVote ? '' : 'disabled'}>
-          ${currentState.hasVoted ? 'Vote Recorded' : 'Vote'}
-        </button>
+  <!-- Active Session -->
+  <div id="session-card" class="card" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+      <div>
+        <strong>Voter:</strong> <span id="current-voter"></span>
+        <span id="vote-status" class="badge"></span>
       </div>
-    `
-    )
-    .join('');
+      <button class="secondary" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
 
-  candidatesList.querySelectorAll('button[data-vote-id]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const candidateId = Number(btn.dataset.voteId);
+  <!-- Ballot & Live Tally -->
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2>Official Ballot & Live Results</h2>
+      <span class="muted" id="total-votes">Total Votes: 0</span>
+    </div>
+    <div id="candidate-list"></div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="admin-card" class="card" style="display:none;">
+    <h2>Election Admin Controls</h2>
+    <p class="muted">Default Admin PIN: <strong>1234</strong></p>
+    <div id="admin-lock" class="form-group">
+      <input id="admin-pin-input" type="password" placeholder="Enter Admin PIN" />
+      <button onclick="unlockAdmin()">Unlock</button>
+    </div>
+    <div id="admin-controls" style="display:none;">
+      <div class="form-group">
+        <input id="election-title-input" type="text" placeholder="Election Title" />
+        <button onclick="updateTitle()">Update Title</button>
+      </div>
+      <div class="form-group">
+        <input id="cand-name" type="text" placeholder="Candidate Name" />
+        <input id="cand-party" type="text" placeholder="Party / Platform" />
+        <button onclick="addCandidate()">Add Candidate</button>
+      </div>
+      <div class="form-group" style="margin-top:0.75rem;">
+        <button class="secondary" onclick="exportResults()">Export JSON</button>
+        <button class="danger" onclick="resetElection()">Reset All Votes & Voters</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'gh_pages_voting_v1';
+    const ADMIN_PIN = '1234';
+
+    const defaultState = {
+      title: 'Student Council Election 2026',
+      candidates: [
+        { id: 1, name: 'Elena Rostova', party: 'Civic Progress', votes: 0 },
+        { id: 2, name: 'Marcus Vance', party: 'Open Future', votes: 0 },
+        { id: 3, name: 'Devon Brooks', party: 'Independent', votes: 0 }
+      ],
+      voters: {} // { [voterId]: { pin, hasVoted } }
+    };
+
+    let state = loadState();
+    let currentUser = null;
+    let adminUnlocked = false;
+
+    function loadState() {
       try {
-        const res = await api('/api/vote', {
-          method: 'POST',
-          body: JSON.stringify({ candidateId })
-        });
-        showBanner(res.message, 'success');
-        await refreshAll();
-      } catch (err) {
-        showBanner(err.message, 'error');
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : structuredClone(defaultState);
+      } catch {
+        return structuredClone(defaultState);
       }
-    });
-  });
-}
+    }
 
-function renderResults(data) {
-  totalVotesLabel.textContent = `${data.totalVotes} total ${data.totalVotes === 1 ? 'vote' : 'votes'}`;
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
 
-  resultsList.innerHTML = data.candidates
-    .map((c) => {
-      const pct = data.totalVotes > 0 ? Math.round((c.vote_count / data.totalVotes) * 100) : 0;
-      return `
-        <div class="result-row">
-          <div class="result-meta">
-            <span>${escapeHtml(c.name)} (${escapeHtml(c.party)})</span>
-            <span>${c.vote_count} (${pct}%)</span>
-          </div>
-          <div class="bar-bg">
-            <div class="bar-fill" style="width: ${pct}%;"></div>
-          </div>
-        </div>
-      `;
-    })
-    .join('');
-}
+    function showAlert(msg, type = 'success') {
+      const el = document.getElementById('alert');
+      el.textContent = msg;
+      el.className = type;
+    }
 
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;');
-}
+    function loginOrRegister() {
+      const id = document.getElementById('voter-id').value.trim().toUpperCase();
+      const pin = document.getElementById('voter-pin').value.trim();
 
-async function refreshAll() {
-  const [me, results] = await Promise.all([api('/api/me'), api('/api/results')]);
-  currentState = me;
-  currentCandidates = results.candidates;
-  renderAuth();
-  renderCandidates();
-  renderResults(results);
-}
+      if (!id || pin.length < 4) {
+        return showAlert('Enter a Voter ID and a PIN of at least 4 characters.', 'error');
+      }
 
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  clearBanner();
-  try {
-    await api('/api/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        email: document.getElementById('loginEmail').value,
-        password: document.getElementById('loginPassword').value
-      })
-    });
-    showBanner('Logged in successfully.', 'success');
-    await refreshAll();
-  } catch (err) {
-    showBanner(err.message, 'error');
-  }
-});
+      if (!state.voters[id]) {
+        state.voters[id] = { pin, hasVoted: false };
+        saveState();
+        currentUser = id;
+        showAlert(`Voter ${id} registered and signed in.`);
+      } else {
+        if (state.voters[id].pin !== pin) {
+          return showAlert('Incorrect PIN for this Voter ID.', 'error');
+        }
+        currentUser = id;
+        showAlert(`Welcome back, ${id}.`);
+      }
 
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  clearBanner();
-  try {
-    await api('/api/register', {
-      method: 'POST',
-      body: JSON.stringify({
-        name: document.getElementById('regName').value,
-        email: document.getElementById('regEmail').value,
-        password: document.getElementById('regPassword').value
-      })
-    });
-    showBanner('Account created and logged in.', 'success');
-    await refreshAll();
-  } catch (err) {
-    showBanner(err.message, 'error');
-  }
-});
+      document.getElementById('voter-id').value = '';
+      document.getElementById('voter-pin').value = '';
+      render();
+    }
 
-refreshAll().catch((err) => showBanner(err.message, 'error'));
-        
-    
-    
+    function logout() {
+      currentUser = null;
+      showAlert('Signed out.');
+      render();
+    }
 
+    function castVote(candidateId) {
+      if (!currentUser) {
+        return showAlert('Please sign in first.', 'error');
+      }
+      const voter = state.voters[currentUser];
+      if (voter.hasVoted) {
+        return showAlert('You have already voted.', 'error');
+      }
+      const candidate = state.candidates.find(c => c.id === candidateId);
+      if (!candidate) return;
+
+      candidate.votes += 1;
+      voter.hasVoted = true;
+      saveState();
+      showAlert(`Vote cast for ${candidate.name}.`);
+      render();
+    }
+
+    function toggleAdmin() {
+      const card = document.getElementById('admin-card');
+      card.style.display = card.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function unlockAdmin() {
+      const pin = document.getElementById('admin-pin-input').value;
+      if (pin !== ADMIN_PIN) {
+        return showAlert('Invalid Admin PIN.', 'error');
+      }
+      adminUnlocked = true;
+      document.getElementById('admin-lock').style.display = 'none';
+      document.getElementById('admin-controls').style.display = 'block';
+      document.getElementById('election-title-input').value = state.title;
+      showAlert('Admin panel unlocked.');
+    }
+
+    function updateTitle() {
+      const newTitle = document.getElementById('election-title-input').value.trim();
+      if (!newTitle) return;
+      state.title = newTitle;
+      saveState();
+      showAlert('Election title updated.');
+      render();
+    }
+
+    function addCandidate() {
+      const name = document.getElementById('cand-name').value.trim();
+      const party = document.getElementById('cand-party').value.trim() || 'Independent';
+      if (!name) return showAlert('Candidate name is required.', 'error');
+
+      state.candidates.push({
+        id: Date.now(),
+        name,
+        party,
+        votes: 0
+      });
+      saveState();
+      document.getElementById('cand-name').value = '';
+      document.getElementById('cand-party').value = '';
+      showAlert(`Added candidate ${name}.`);
+      render();
+    }
+
+    function removeCandidate(id) {
+      if (!adminUnlocked) return;
+      state.candidates = state.candidates.filter(c => c.id !== id);
+      saveState();
+      showAlert('Candidate removed.');
+      render();
+    }
+
+    function resetElection() {
+      if (!confirm('Reset all votes and registered voters?')) return;
+      state.candidates.forEach(c => (c.votes = 0));
+      state.voters = {};
+      currentUser = null;
+      saveState();
+      showAlert('Election reset.');
+      render();
+    }
+
+    function exportResults() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'election-results.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    function render() {
+      document.getElementById('election-title').textContent = state.title;
+
+      const authCard = document.getElementById('auth-card');
+      const sessionCard = document.getElementById('session-card');
+
+      if (currentUser && state.voters[currentUser]) {
+        authCard.style.display = 'none';
+        sessionCard.style.display = 'block';
+        document.getElementById('current-voter').textContent = currentUser;
+        document.getElementById('vote-status').textContent =
+          state.voters[currentUser].hasVoted ? 'Ballot Cast' : 'Eligible to Vote';
+      } else {
+        authCard.style.display = 'block';
+        sessionCard.style.display = 'none';
+      }
+
+      const totalVotes = state.candidates.reduce((sum, c) => sum + c.votes, 0);
+      document.getElementById('total-votes').textContent = `Total Votes: ${totalVotes}`;
+
+      const canVote = currentUser && state.voters[currentUser] && !state.voters[currentUser].hasVoted;
+      const list = document.getElementById('candidate-list');
+
+      list.innerHTML = state.candidates.map(c => {
+        const pct = totalVotes > 0 ? Math.round((c.votes / totalVotes) * 100) : 0;
+        return `
+          <div class="row">
+            <div style="flex:1;">
+              <strong>${escapeHtml(c.name)}</strong>
+              <span class="muted"> —
     
