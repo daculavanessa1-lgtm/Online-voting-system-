@@ -139,7 +139,7 @@ function submitVote() {
     "Your vote has been submitted successfully!";
 
     document.getElementById("voterName").value = "";
-    document.getElementById("candidate").value = "";
+    document.getElementById("nominee").value = "";
 }
 
 function showResults() {
@@ -159,7 +159,7 @@ function showResults() {
         output += candidate + ": " + votes[candidate] +
         " votes<br>";
 
-        total += votes[candidate];
+        total += votes[nominee];
     }
 
     output += "<br><b>Total Votes: " + total + "</b>";
