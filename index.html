@@ -1,174 +1,165 @@
 
+    
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Online Voting System</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Voting System</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #eaf2f8;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-        .container {
-            background: white;
-            max-width: 450px;
-            margin: auto;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px #ccc;
-        }
+body {
+  font-family: Arial, sans-serif;
+  background: #edf4ff;
+  color: #18345b;
+}
 
-        h1 {
-            color: #154360;
-        }
+header {
+  background: linear-gradient(135deg,#0755b5,#1689ed);
+  color: white;
+  text-align: center;
+  padding: 30px 15px;
+  box-shadow: 0 7px 18px #174d9160;
+}
 
-        input, select {
-            width: 90%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #aaa;
-            border-radius: 5px;
-        }
+header h1 {
+  font-size: 28px;
+  text-shadow: 2px 3px 5px #123d70;
+}
 
-        button {
-            width: 95%;
-            padding: 12px;
-            margin: 8px 0;
-            background: #21618c;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-        }
+header p {
+  margin-top: 10px;
+}
 
-        button:hover {
-            background: #154360;
-        }
+.container {
+  max-width: 850px;
+  margin: 25px auto;
+  padding: 15px;
+}
 
-        .section {
-            margin-top: 25px;
-            padding: 15px;
-            background: #f4f6f7;
-            border-radius: 8px;
-        }
+.card {
+  background: white;
+  padding: 23px;
+  margin-bottom: 22px;
+  border-radius: 18px;
+  box-shadow: 0 7px 0 #c5dcf7,
+              0 12px 25px #254e7a25;
+}
 
-        #message {
-            font-weight: bold;
-        }
-    </style>
+h2 {
+  color: #0755b5;
+  margin-bottom: 18px;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  margin: 8px 0;
+  border: 1px solid #b8d2f3;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  background: linear-gradient(135deg,#0862c8,#239cf5);
+  color: white;
+  border: none;
+  border-radius: 11px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 5px 0 #06458c;
+  cursor: pointer;
+}
+
+button:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #06458c;
+}
+
+.candidate {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  margin: 12px 0;
+  border-radius: 12px;
+  background: #f0f6ff;
+  border: 1px solid #c5dcf7;
+}
+
+.candidate input {
+  width: auto;
+}
+
+.stat {
+  background: #e6f2ff;
+  padding: 15px;
+  border-radius: 12px;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+footer {
+  background: #0755b5;
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+</style>
 </head>
 
 <body>
 
+<header>
+  <h1>ONLINE VOTING SYSTEM</h1>
+  <p>Organization Election Management Portal</p>
+</header>
+
 <div class="container">
 
-    <h1>ONLINE VOTING SYSTEM</h1>
-    <p>Welcome to the Online Voting System</p>
-
-    <div class="section">
-        <h2>Voter Section</h2>
-
-        <input type="text" id="voterName"
-        placeholder="Enter Voter Name">
-
-        <select id="candidate">
-            <option value="">Select Nominee</option>
-            <option value="Nominee A">Nominee A</option>
-            <option value="Nominee B">Nominee B</option>
-            <option value="Nominee C">Nominee C</option>
-        </select>
-
-        <button onclick="submitVote()">Submit Vote</button>
-
-        <p id="message"></p>
-    </div>
-
-    <div class="section">
-        <h2>Admin Login</h2>
-
-        <input type="password" id="adminPassword"
-        placeholder="Enter Admin Password">
-
-        <button onclick="showResults()">View Results</button>
-
-        <div id="results"></div>
-    </div>
-
+<div class="card">
+  <h2>📊 Election Dashboard</h2>
+  <div class="stat">
+    Total Candidates: <span id="candidateCount">3</span>
+  </div>
+  <div class="stat">
+    Total Votes: <span id="totalVotes">0</span>
+  </div>
+  <div class="stat">
+    Election Status: <span>Ongoing (Demo)</span>
+  </div>
 </div>
 
-<script>
+<div class="card">
+  <h2>🗳️ Cast Your Vote</h2>
 
-let votes = JSON.parse(localStorage.getItem("votes")) || {
-    "Nominee A": 0,
-    "Nominee B": 0,
-    "Nominee C": 0
-};
+  <input type="text" id="voter"
+  placeholder="Enter your voter ID">
 
-function submitVote() {
+  <h3>Select Your Candidate</h3>
 
-    let name = document.getElementById("voterName").value;
-    let candidate = document.getElementById("candidate").value;
+  <label class="candidate">
+    <input type="radio" name="candidate" value="Candidate 1">
+    Candidate 1
+  </label>
 
-    if (name === "" || nominee === "") {
-        document.getElementById("message").innerHTML =
-        "Please enter your name and select a candidate.";
-        return;
-    }
+  <label class="candidate">
+    <input type="radio" name="candidate" value="Candidate 2">
+    Candidate 2
+  </label>
 
-    let voted = JSON.parse(localStorage.getItem("voted")) || [];
+  <label class="candidate">
+    <input type="radio" name="candidate" value="Candidate 3">
+    Candidate 3
+  </label>
 
-    if (voted.includes(name.toLowerCase())) {
-        document.getElementById("message").innerHTML =
-        "You have already voted!";
-        return;
-    }
-
-    votes[candidate]++;
-
-    voted.push(name.toLowerCase());
-
-    localStorage.setItem("votes", JSON.stringify(votes));
-    localStorage.setItem("voted", JSON.stringify(voted));
-
-    document.getElementById("message").innerHTML =
-    "Your vote has been submitted successfully!";
-
-    document.getElementById("voterName").value = "";
-    document.getElementById("nominee").value = "";
-}
-
-function showResults() {
-
-    let password =
-    document.getElementById("adminPassword").value;
-
-    if (password !== "admin123") {
-        alert("Incorrect Admin Password!");
-        return;
-    }
-
-    let total = 0;
-    let output = "<h3>Voting Results</h3>";
-
-    for (let candidate in votes) {
-        output += nominee + ": " + votes[nominee] +
-        " votes<br>";
-
-        total += votes[nominee];
-    }
-
-    output += "<br><b>Total Votes: " + total + "</b>";
-
-    document.getElementById("results").innerHTML = output;
-}
-
-</script>
-
-</body>
-</html>
-
+    
