@@ -1,117 +1,230 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Online Voting System</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f0f4f8; display: flex; justify-content: center; padding: 20px; }
-    .card { background: white; padding: 25px; border-radius: 12px; max-width: 420px; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    h1 { color: #1a4b9c; text-align: center; margin-bottom: 5px; }
-    .subtitle { text-align: center; color: #555; margin-bottom: 20px; }
-    .option { display: block; background: #edf2f7; padding: 14px; margin: 10px 0; border-radius: 8px; cursor: pointer; font-weight: bold; }
-    button { width: 100%; background: #1a4b9c; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    button:disabled { background: #a0aec0; cursor: not-allowed; }
-    .results { background: #e6f4ea; padding: 15px; border-radius: 8px; margin-top: 20px; }
-    .bar-bg { background: #cbd5e0; height: 10px; border-radius: 5px; overflow: hidden; margin: 6px 0 14px; }
-    .bar-fill { background: #1a4b9c; height: 100%; width: 0%; transition: width 0.3s; }
-    .footer { text-align: center; font-size: 12px; color: #777; margin-top: 20px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Voting System</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #eef2f7;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 450px;
+  margin: 30px auto;
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px #0002;
+}
+h1,h2 { text-align: center; color: #173b70; }
+input,button {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border-radius: 6px;
+}
+input { border: 1px solid #bbb; }
+button {
+  border: none;
+  background: #1769aa;
+  color: white;
+  font-weight: bold;
+}
+button:active { opacity: .8; }
+.candidate {
+  border: 1px solid #ddd;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+.hidden { display: none; }
+.result { background: #e5f3ff; padding: 10px; margin: 8px 0; }
+</style>
 </head>
 <body>
 
-<div class="card">
-  <h1>Online Voting System</h1>
-  <p class="subtitle">Welcome! Please select your candidate.</p>
+<div class="container" id="home">
+<h1>Online Voting System</h1>
+<h2>Voter Registration</h2>
+<input id="regName" placeholder="Full Name">
+<input id="regPass" type="password" placeholder="Create Password">
+<button onclick="register()">Register</button>
 
-  <h3>Choose Your Candidate</h3>
-  <label class="option"><input type="radio" name="candidate" value="A"> Candidate A</label>
-  <label class="option"><input type="radio" name="candidate" value="B"> Candidate B</label>
-  <label class="option"><input type="radio" name="candidate" value="C"> Candidate C</label>
+<h2>Voter Login</h2>
+<input id="loginName" placeholder="Full Name">
+<input id="loginPass" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
 
-  <button id="voteBtn" onclick="submitVote()">SUBMIT VOTE</button>
-
-  <div class="results">
-    <h3>Voting Results</h3>
-    <div>Candidate A: <span id="countA">0</span> votes</div>
-    <div class="bar-bg"><div id="barA" class="bar-fill"></div></div>
-
-    <div>Candidate B: <span id="countB">0</span> votes</div>
-    <div class="bar-bg"><div id="barB" class="bar-fill"></div></div>
-
-    <div>Candidate C: <span id="countC">0</span> votes</div>
-    <div class="bar-bg"><div id="barC" class="bar-fill"></div></div>
-  </div>
-
-  <div class="footer">Online Voting System | School Project</div>
+<hr>
+<h2>Admin Login</h2>
+<input id="adminCode" type="password" placeholder="Admin Code">
+<button onclick="adminLogin()">Admin Login</button>
+<p id="message"></p>
 </div>
 
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://gstatic.com";
-  import { getDatabase, ref, runTransaction, onValue } from "https://gstatic.com";
+<div class="container hidden" id="voting">
+<h1>Cast Your Vote</h1>
+<p id="welcome"></p>
 
-  // PASTE YOUR FIREBASE CONFIG HERE
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_://firebaseapp.com",
-    databaseURL: "https://YOUR_://firebaseio.com",
-    projectId: "YOUR_PROJECT",
-    storageBucket: "YOUR_://appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-  };
+<div class="candidate">
+<label><input type="radio" name="candidate" value="Candidate A"> Candidate A</label>
+</div>
+<div class="candidate">
+<label><input type="radio" name="candidate" value="Candidate B"> Candidate B</label>
+</div>
+<div class="candidate">
+<label><input type="radio" name="candidate" value="Candidate C"> Candidate C</label>
+</div>
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-  const votesRef = ref(db, 'votes');
+<button onclick="submitVote()">Submit Vote</button>
+<button onclick="logout()">Logout</button>
+<p id="voteMessage"></p>
+</div>
 
-  // Check if this browser already voted
-  if (localStorage.getItem('hasVoted') === 'true') {
-    document.getElementById('voteBtn').disabled = true;
-    document.getElementById('voteBtn').innerText = "YOU ALREADY VOTED";
+<div class="container hidden" id="admin">
+<h1>Admin Dashboard</h1>
+<h2>Election Results</h2>
+<div id="results"></div>
+<button onclick="logout()">Logout</button>
+</div>
+
+<script>
+const ADMIN_CODE = "ADMIN123";
+
+let voters = JSON.parse(localStorage.getItem("voters") || "{}");
+let votes = JSON.parse(localStorage.getItem("votes") || "{}");
+let currentUser = "";
+
+function saveData() {
+  localStorage.setItem("voters", JSON.stringify(voters));
+  localStorage.setItem("votes", JSON.stringify(votes));
+}
+
+function register() {
+  let name = document.getElementById("regName").value.trim();
+  let pass = document.getElementById("regPass").value;
+
+  if (!name || !pass) {
+    alert("Please complete all fields.");
+    return;
   }
 
-  // Listen for live updates from Firebase
-  onValue(votesRef, (snapshot) => {
-    const data = snapshot.val() || { A: 0, B: 0, C: 0 };
-    const total = (data.A || 0) + (data.B || 0) + (data.C || 0);
+  let key = name.toLowerCase();
 
-    document.getElementById('countA').innerText = data.A || 0;
-    document.getElementById('countB').innerText = data.B || 0;
-    document.getElementById('countC').innerText = data.C || 0;
+  if (voters[key]) {
+    alert("Voter already registered.");
+    return;
+  }
 
-    document.getElementById('barA').style.width = total ? ((data.A || 0) / total * 100) + '%' : '0%';
-    document.getElementById('barB').style.width = total ? ((data.B || 0) / total * 100) + '%' : '0%';
-    document.getElementById('barC').style.width = total ? ((data.C || 0) / total * 100) + '%' : '0%';
+  voters[key] = { name: name, password: pass };
+  saveData();
+  alert("Registration successful!");
+}
+
+function login() {
+  let name = document.getElementById("loginName").value.trim();
+  let pass = document.getElementById("loginPass").value;
+  let key = name.toLowerCase();
+
+  if (!voters[key] || voters[key].password !== pass) {
+    alert("Invalid username or password.");
+    return;
+  }
+
+  currentUser = key;
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("voting").classList.remove("hidden");
+  document.getElementById("welcome").textContent =
+    "Welcome, " + voters[key].name;
+
+  if (votes[key]) {
+    document.getElementById("voteMessage").textContent =
+      "You have already voted.";
+  } else {
+    document.getElementById("voteMessage").textContent = "";
+  }
+}
+
+function submitVote() {
+  if (votes[currentUser]) {
+    alert("You have already voted!");
+    return;
+  }
+
+  let selected = document.querySelector(
+    'input[name="candidate"]:checked'
+  );
+
+  if (!selected) {
+    alert("Please select a candidate.");
+    return;
+  }
+
+  votes[currentUser] = selected.value;
+  saveData();
+
+  document.getElementById("voteMessage").textContent =
+    "Your vote has been submitted successfully!";
+  alert("Thank you for voting!");
+}
+
+function adminLogin() {
+  let code = document.getElementById("adminCode").value;
+
+  if (code !== ADMIN_CODE) {
+    alert("Incorrect admin code!");
+    return;
+  }
+
+  document.getElementById("home").classList.add("hidden");
+  document.getElementById("admin").classList.remove("hidden");
+  showResults();
+}
+
+function showResults() {
+  let counts = {
+    "Candidate A": 0,
+    "Candidate B": 0,
+    "Candidate C": 0
+  };
+
+  Object.values(votes).forEach(candidate => {
+    if (counts[candidate] !== undefined) {
+      counts[candidate]++;
+    }
   });
 
-  // Submit Vote Function
-  window.submitVote = function() {
-    if (localStorage.getItem('hasVoted') === 'true') return;
+  let total = Object.keys(votes).length;
+  let html = "<div class='result'>Total registered voters: " +
+    Object.keys(voters).length + "</div>";
+  html += "<div class='result'>Total votes: " + total + "</div>";
 
-    const selected = document.querySelector('input[name="candidate"]:checked');
-    if (!selected) {
-      alert("Please select a candidate first!");
-      return;
-    }
+  Object.keys(counts).forEach(candidate => {
+    let percent = total ? (counts[candidate] / total * 100).toFixed(1) : 0;
+    html += "<div class='result'><b>" + candidate +
+      "</b><br>Votes: " + counts[candidate] +
+      "<br>Percentage: " + percent + "%</div>";
+  });
 
-    const choice = selected.value;
-    const candidateRef = ref(db, 'votes/' + choice);
+  document.getElementById("results").innerHTML = html;
+}
 
-    runTransaction(candidateRef, (currentVotes) => {
-      return (currentVotes || 0) + 1;
-    }).then(() => {
-      localStorage.setItem('hasVoted', 'true');
-      document.getElementById('voteBtn').disabled = true;
-      document.getElementById('voteBtn').innerText = "VOTE SUBMITTED!";
-      alert("Thank you for voting!");
-    });
-  };
+function logout() {
+  currentUser = "";
+  document.querySelectorAll(".container").forEach(el =>
+    el.classList.add("hidden")
+  );
+  document.getElementById("home").classList.remove("hidden");
+}
 </script>
-
 </body>
 </html>
+
 
 
   
