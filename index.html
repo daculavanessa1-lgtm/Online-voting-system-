@@ -2,209 +2,324 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Voting System</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Voting System</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f0f4f8;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 500px;
-            margin: auto;
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px #ccc;
-        }
-
-        h1 {
-            text-align: center;
-            color: #174ea6;
-        }
-
-        h3 {
-            color: #333;
-        }
-
-        .candidate {
-            background: #eef4ff;
-            padding: 15px;
-            margin: 12px 0;
-            border-radius: 8px;
-        }
-
-        button {
-            width: 100%;
-            padding: 13px;
-            background: #174ea6;
-            color: white;
-            border: none;
-            border-radius: 7px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #0d3475;
-        }
-
-        .results {
-            margin-top: 25px;
-            padding: 15px;
-            background: #e8f5e9;
-            border-radius: 8px;
-        }
-
-        .result-item {
-            margin: 12px 0;
-        }
-
-        .bar {
-            background: #174ea6;
-            height: 12px;
-            border-radius: 5px;
-            margin-top: 5px;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: gray;
-            font-size: 12px;
-        }
-    </style>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #eaf0f8;
+    padding: 20px;
+}
+.container {
+    max-width: 450px;
+    margin: auto;
+    background: white;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px #ccc;
+}
+h1 {
+    text-align: center;
+    color: #174ea6;
+}
+input {
+    width: 95%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 10px;
+    background: #174ea6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+}
+.secondary {
+    background: #555;
+}
+.candidate {
+    background: #eef3ff;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 7px;
+}
+.results {
+    background: #e8f5e9;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 8px;
+}
+.hidden {
+    display: none;
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-    <h1>Online Voting System</h1>
+<h1>Online Voting System</h1>
 
-    <p style="text-align:center;">
-        Welcome! Please select your candidate.
-    </p>
+<!-- REGISTRATION -->
+<div id="registerPage">
 
-    <h3>Choose Your Candidate</h3>
+<h2>Voter Registration</h2>
 
-    <form id="votingForm">
+<input id="regName" type="text"
+placeholder="Full Name">
 
-        <div class="candidate">
-            <input type="radio" name="candidate"
-            value="Candidate A" required>
-            Candidate A
-        </div>
+<input id="regID" type="text"
+placeholder="Student ID">
 
-        <div class="candidate">
-            <input type="radio" name="candidate"
-            value="Candidate B">
-            Candidate B
-        </div>
+<input id="regPassword" type="password"
+placeholder="Create Password">
 
-        <div class="candidate">
-            <input type="radio" name="candidate"
-            value="Candidate C">
-            Candidate C
-        </div>
+<button onclick="register()">REGISTER</button>
 
-        <button type="submit">SUBMIT VOTE</button>
+<p>Already registered?</p>
+<button class="secondary"
+onclick="showLogin()">LOGIN</button>
 
-    </form>
+</div>
 
-    <div class="results">
-        <h3>Voting Results</h3>
-        <div id="results"></div>
-    </div>
+<!-- LOGIN -->
+<div id="loginPage" class="hidden">
 
-    <footer>
-        Online Voting System | School Project
-    </footer>
+<h2>Voter Login</h2>
+
+<input id="loginID" type="text"
+placeholder="Student ID">
+
+<input id="loginPassword" type="password"
+placeholder="Password">
+
+<button onclick="login()">LOGIN</button>
+
+<p>Not registered yet?</p>
+<button class="secondary"
+onclick="showRegister()">REGISTER</button>
+
+</div>
+
+<!-- VOTING -->
+<div id="votingPage" class="hidden">
+
+<h2>Welcome, <span id="voterName"></span>!</h2>
+
+<button class="secondary"
+onclick="logout()">LOGOUT</button>
+
+<h3>Choose Your Candidate</h3>
+
+<form id="votingForm">
+
+<div class="candidate">
+<input type="radio" name="candidate"
+value="Candidate A" required>
+Candidate A
+</div>
+
+<div class="candidate">
+<input type="radio" name="candidate"
+value="Candidate B">
+Candidate B
+</div>
+
+<div class="candidate">
+<input type="radio" name="candidate"
+value="Candidate C">
+Candidate C
+</div>
+
+<button type="submit">SUBMIT VOTE</button>
+
+</form>
+
+<div class="results">
+<h3>Voting Results</h3>
+<div id="results"></div>
+</div>
+
+</div>
 
 </div>
 
 <script>
 
-    let votes = JSON.parse(
-        localStorage.getItem("votes")
-    ) || {
-        "Candidate A": 0,
-        "Candidate B": 0,
-        "Candidate C": 0
-    };
+// Load saved information
+let voters = JSON.parse(
+localStorage.getItem("voters")) || {};
 
-    function displayResults() {
+let votes = JSON.parse(
+localStorage.getItem("votes")) || {
+"Candidate A": 0,
+"Candidate B": 0,
+"Candidate C": 0
+};
 
-        let total = Object.values(votes).reduce(
-            (a, b) => a + b, 0
-        );
+let currentUser = null;
 
-        let output = "";
+// Save information
+function saveData() {
+localStorage.setItem("voters",
+JSON.stringify(voters));
 
-        for (let candidate in votes) {
+localStorage.setItem("votes",
+JSON.stringify(votes));
+}
 
-            let percentage = total === 0
-                ? 0
-                : (votes[candidate] / total) * 100;
+// Registration
+function register() {
 
-            output += `
-                <div class="result-item">
-                    <strong>${candidate}</strong>
-                    : ${votes[candidate]} votes
-                    <div class="bar"
-                    style="width:${percentage}%;"></div>
-                </div>
-            `;
-        }
+let name = document.getElementById("regName").value.trim();
+let id = document.getElementById("regID").value.trim();
+let password = document.getElementById("regPassword").value;
 
-        document.getElementById("results").innerHTML =
-            output;
-    }
+if (!name || !id || !password) {
+alert("Please complete all fields!");
+return;
+}
 
-    document.getElementById("votingForm")
-    .addEventListener("submit", function(event) {
+if (voters[id]) {
+alert("Student ID already registered!");
+return;
+}
 
-        event.preventDefault();
+voters[id] = {
+name: name,
+password: password,
+hasVoted: false
+};
 
-        if (localStorage.getItem("hasVoted")) {
-            alert("You have already voted!");
-            return;
-        }
+saveData();
 
-        let selected = document.querySelector(
-            'input[name="candidate"]:checked'
-        );
+alert("Registration successful! Please login.");
 
-        if (!selected) {
-            alert("Please select a candidate!");
-            return;
-        }
+document.getElementById("regName").value = "";
+document.getElementById("regID").value = "";
+document.getElementById("regPassword").value = "";
 
-        votes[selected.value]++;
+showLogin();
+}
 
-        localStorage.setItem(
-            "votes", JSON.stringify(votes)
-        );
+// Login
+function login() {
 
-        localStorage.setItem("hasVoted", "true");
+let id = document.getElementById("loginID").value.trim();
+let password = document.getElementById("loginPassword").value;
 
-        alert("Your vote has been submitted!");
+if (!voters[id] ||
+voters[id].password !== password) {
+alert("Invalid Student ID or Password!");
+return;
+}
 
-        displayResults();
+currentUser = id;
 
-        document.getElementById("votingForm").reset();
+document.getElementById("voterName").textContent =
+voters[id].name;
 
-    });
+document.getElementById("registerPage").classList.add("hidden");
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("votingPage").classList.remove("hidden");
 
-    displayResults();
+showResults();
+
+if (voters[id].hasVoted) {
+alert("You have already voted!");
+}
+
+}
+
+// Logout
+function logout() {
+
+currentUser = null;
+
+document.getElementById("votingPage").classList.add("hidden");
+document.getElementById("loginPage").classList.remove("hidden");
+
+}
+
+// Page navigation
+function showLogin() {
+document.getElementById("registerPage").classList.add("hidden");
+document.getElementById("loginPage").classList.remove("hidden");
+}
+
+function showRegister() {
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("registerPage").classList.remove("hidden");
+}
+
+// Voting
+document.getElementById("votingForm")
+.addEventListener("submit", function(event) {
+
+event.preventDefault();
+
+if (!currentUser) {
+alert("Please login first!");
+return;
+}
+
+if (voters[currentUser].hasVoted) {
+alert("You have already voted!");
+return;
+}
+
+let selected = document.querySelector(
+'input[name="candidate"]:checked'
+);
+
+if (!selected) {
+alert("Please select a candidate!");
+return;
+}
+
+votes[selected.value]++;
+
+voters[currentUser].hasVoted = true;
+
+saveData();
+
+alert("Your vote has been submitted!");
+
+this.reset();
+
+showResults();
+
+});
+
+// Display results
+function showResults() {
+
+let output = "";
+
+for (let candidate in votes) {
+
+output += "<p><b>" + candidate +
+":</b> " + votes[candidate] +
+" votes</p>";
+
+}
+
+document.getElementById("results").innerHTML =
+output;
+
+}
 
 </script>
 
 </body>
-  </html>
+</html>
+
   
