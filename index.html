@@ -6,24 +6,26 @@
   <title>Online Voting System</title>
   <style>
     :root {
-      --bg: #f8fafc;
+      --bg: #f1f5f9;
       --card: #ffffff;
-      --border: #e2e8f0;
+      --border: #cbd5e1;
       --text: #0f172a;
       --muted: #64748b;
       --primary: #2563eb;
       --primary-hover: #1d4ed8;
       --danger: #dc2626;
+      --danger-hover: #b91c1c;
       --success: #16a34a;
+      --warning: #d97706;
     }
     * { box-sizing: border-box; }
     body {
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      max-width: 720px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+      max-width: 780px;
+      margin: 1.5rem auto;
+      padding: 0 1rem 3rem;
       line-height: 1.5;
     }
     header {
@@ -32,24 +34,25 @@
       align-items: center;
       margin-bottom: 1.25rem;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 0.75rem;
     }
     h1 { font-size: 1.5rem; margin: 0; }
-    h2 { font-size: 1.15rem; margin-top: 0; }
+    h2 { font-size: 1.15rem; margin: 0 0 0.75rem; }
+    h3 { font-size: 1rem; margin: 1rem 0 0.5rem; }
     .card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 1.25rem;
       margin-bottom: 1rem;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.85rem 0;
-      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 0;
+      border-bottom: 1px solid #e2e8f0;
       gap: 1rem;
     }
     .row:last-child { border-bottom: none; padding-bottom: 0; }
@@ -57,15 +60,17 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.6rem;
     }
-    input {
+    input, textarea, select {
       padding: 0.55rem 0.75rem;
       border: 1px solid var(--border);
       border-radius: 6px;
       font-size: 0.95rem;
+      font-family: inherit;
       flex: 1 1 160px;
     }
+    textarea { width: 100%; min-height: 70px; }
     button {
       padding: 0.55rem 1rem;
       border: none;
@@ -75,26 +80,31 @@
       font-weight: 600;
       cursor: pointer;
       font-size: 0.9rem;
+      transition: background 0.15s;
     }
     button:hover:not(:disabled) { background: var(--primary-hover); }
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     button.secondary { background: #475569; }
+    button.secondary:hover:not(:disabled) { background: #334155; }
     button.danger { background: var(--danger); }
+    button.danger:hover:not(:disabled) { background: var(--danger-hover); }
+    button.success { background: var(--success); }
     .badge {
       display: inline-block;
-      padding: 0.2rem 0.55rem;
+      padding: 0.2rem 0.6rem;
       border-radius: 999px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      background: #e0e7ff;
-      color: #1e40af;
+      font-size: 0.78rem;
+      font-weight: 700;
     }
+    .badge.open { background: #dcfce7; color: #166534; }
+    .badge.closed { background: #fee2e2; color: #991b1b; }
+    .badge.info { background: #e0e7ff; color: #1e40af; }
     .progress-wrap {
       background: #e2e8f0;
       border-radius: 999px;
       height: 8px;
       width: 100%;
-      margin-top: 0.4rem;
+      margin-top: 0.45rem;
       overflow: hidden;
     }
     .progress-bar {
@@ -102,6 +112,7 @@
       height: 100%;
       transition: width 0.25s ease;
     }
+    .progress-bar.winner { background: var(--success); }
     #alert {
       padding: 0.75rem 1rem;
       border-radius: 8px;
@@ -109,49 +120,67 @@
       font-weight: 600;
       display: none;
     }
-    #alert.error { display: block; background: #fee2e2; color: #991b1b; }
-    #alert.success { display: block; background: #dcfce7; color: #166534; }
+    #alert.error { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    #alert.success { display: block; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
     .muted { color: var(--muted); font-size: 0.88rem; }
+    .receipt-box {
+      background: #f8fafc;
+      border: 1px dashed var(--border);
+      padding: 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+    .admin-section {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 0.9rem;
+      margin-top: 0.9rem;
+    }
   </style>
 </head>
 <body>
 
   <header>
     <div>
-      <h1 id="election-title">Student Council Election 2026</h1>
-      <span class="muted">Single-Page Voting Portal</span>
+      <h1 id="election-title">General Election 2026</h1>
+      <div style="margin-top:0.25rem;">
+        <span id="election-status-badge" class="badge open">Polls Open</span>
+        <span class="muted" id="election-subtitle" style="margin-left:0.4rem;">Official Voting Portal</span>
+      </div>
     </div>
     <button class="secondary" onclick="toggleAdmin()">Admin Panel</button>
   </header>
 
   <div id="alert"></div>
 
-  <!-- Voter Auth -->
+  <!-- Voter Sign In / Register -->
   <div id="auth-card" class="card">
-    <h2>Voter Sign In / Register</h2>
-    <p class="muted">Enter a Voter ID and PIN to register or sign in. Each Voter ID can cast one ballot.</p>
+    <h2>Voter Verification</h2>
+    <p class="muted" id="auth-help-text">Enter your Voter ID and 4+ digit PIN to register or sign in.</p>
     <div class="form-group">
-      <input id="voter-id" type="text" placeholder="Voter ID (e.g., V1001)" />
+      <input id="voter-id" type="text" placeholder="Voter ID (e.g., V1001)" autocomplete="off" />
       <input id="voter-pin" type="password" placeholder="4+ digit PIN" />
-      <button onclick="loginOrRegister()">Continue</button>
+      <button id="auth-btn" onclick="loginOrRegister()">Sign In / Register</button>
     </div>
   </div>
 
-  <!-- Active Session -->
+  <!-- Active Voter Session -->
   <div id="session-card" class="card" style="display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
       <div>
-        <strong>Voter:</strong> <span id="current-voter"></span>
-        <span id="vote-status" class="badge"></span>
+        <strong>Signed in as:</strong> <span id="current-voter"></span>
+        <span id="vote-status" class="badge info" style="margin-left:0.4rem;"></span>
       </div>
       <button class="secondary" onclick="logout()">Sign Out</button>
     </div>
+    <div id="receipt-container"></div>
   </div>
 
   <!-- Ballot & Live Tally -->
   <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <h2>Official Ballot & Live Results</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+      <h2>Ballot & Results</h2>
       <span class="muted" id="total-votes">Total Votes: 0</span>
     </div>
     <div id="candidate-list"></div>
@@ -159,41 +188,70 @@
 
   <!-- Admin Panel -->
   <div id="admin-card" class="card" style="display:none;">
-    <h2>Election Admin Controls</h2>
-    <p class="muted">Default Admin PIN: <strong>1234</strong></p>
-    <div id="admin-lock" class="form-group">
-      <input id="admin-pin-input" type="password" placeholder="Enter Admin PIN" />
-      <button onclick="unlockAdmin()">Unlock</button>
+    <h2>Election Administration</h2>
+    <div id="admin-lock">
+      <p class="muted">Default Admin PIN: <strong>1234</strong></p>
+      <div class="form-group">
+        <input id="admin-pin-input" type="password" placeholder="Enter Admin PIN" />
+        <button onclick="unlockAdmin()">Unlock Admin</button>
+      </div>
     </div>
+
     <div id="admin-controls" style="display:none;">
       <div class="form-group">
-        <input id="election-title-input" type="text" placeholder="Election Title" />
-        <button onclick="updateTitle()">Update Title</button>
-      </div>
-      <div class="form-group">
-        <input id="cand-name" type="text" placeholder="Candidate Name" />
-        <input id="cand-party" type="text" placeholder="Party / Platform" />
-        <button onclick="addCandidate()">Add Candidate</button>
-      </div>
-      <div class="form-group" style="margin-top:0.75rem;">
+        <button id="toggle-polls-btn" class="secondary" onclick="togglePolls()">Close Polls</button>
+        <button id="toggle-results-btn" class="secondary" onclick="toggleResultsVisibility()">Hide Live Tally</button>
         <button class="secondary" onclick="exportResults()">Export JSON</button>
-        <button class="danger" onclick="resetElection()">Reset All Votes & Voters</button>
+        <button class="danger" onclick="resetElection()">Reset Election</button>
+      </div>
+
+      <div class="admin-section">
+        <h3>Election Details & Security</h3>
+        <div class="form-group">
+          <input id="election-title-input" type="text" placeholder="Election Title" />
+          <button onclick="updateTitle()">Save Title</button>
+        </div>
+        <div class="form-group">
+          <input id="new-admin-pin" type="password" placeholder="New Admin PIN (4+ chars)" />
+          <button onclick="changeAdminPin()">Change Admin PIN</button>
+        </div>
+        <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; cursor:pointer;">
+          <input id="restrict-voters-chk" type="checkbox" style="flex:0;" onchange="toggleVoterRestriction()" />
+          <span>Restrict voting to approved Voter ID list only</span>
+        </label>
+        <div id="approved-list-box" style="display:none; margin-top:0.5rem;">
+          <textarea id="approved-voters-input" placeholder="Comma or newline separated Voter IDs (e.g. V1001, V1002, V1003)"></textarea>
+          <button style="margin-top:0.4rem;" onclick="saveApprovedVoters()">Save Approved Voter IDs</button>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h3>Manage Candidates</h3>
+        <div class="form-group">
+          <input id="cand-name" type="text" placeholder="Candidate Full Name" />
+          <input id="cand-party" type="text" placeholder="Party / Slate" />
+          <button onclick="addCandidate()">Add Candidate</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    const STORAGE_KEY = 'gh_pages_voting_v1';
-    const ADMIN_PIN = '1234';
+    const STORAGE_KEY = 'online_voting_single_file_v2';
 
     const defaultState = {
-      title: 'Student Council Election 2026',
+      title: 'General Election 2026',
+      adminPin: '1234',
+      pollsOpen: true,
+      showLiveResults: true,
+      restrictVoters: false,
+      approvedVoters: ['V1001', 'V1002', 'V1003', 'V1004', 'V1005'],
       candidates: [
         { id: 1, name: 'Elena Rostova', party: 'Civic Progress', votes: 0 },
         { id: 2, name: 'Marcus Vance', party: 'Open Future', votes: 0 },
         { id: 3, name: 'Devon Brooks', party: 'Independent', votes: 0 }
       ],
-      voters: {} // { [voterId]: { pin, hasVoted } }
+      voters: {} // { [voterId]: { pinHash, hasVoted, receipt, votedAt } }
     };
 
     let state = loadState();
@@ -203,9 +261,10 @@
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : structuredClone(defaultState);
+        if (!raw) return JSON.parse(JSON.stringify(defaultState));
+        return Object.assign(JSON.parse(JSON.stringify(defaultState)), JSON.parse(raw));
       } catch {
-        return structuredClone(defaultState);
+        return JSON.parse(JSON.stringify(defaultState));
       }
     }
 
@@ -213,10 +272,26 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
+    function simpleHash(str) {
+      let hash = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        hash ^= str.charCodeAt(i);
+        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+      }
+      return (hash >>> 0).toString(16).toUpperCase();
+    }
+
+    function generateReceipt(voterId) {
+      const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
+      return `BALLOT-${simpleHash(voterId + Date.now())}-${rand}`;
+    }
+
     function showAlert(msg, type = 'success') {
       const el = document.getElementById('alert');
       el.textContent = msg;
       el.className = type;
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => { el.className = ''; }, 5000);
     }
 
     function loginOrRegister() {
@@ -224,16 +299,30 @@
       const pin = document.getElementById('voter-pin').value.trim();
 
       if (!id || pin.length < 4) {
-        return showAlert('Enter a Voter ID and a PIN of at least 4 characters.', 'error');
+        return showAlert('Enter a valid Voter ID and a PIN with at least 4 characters.', 'error');
       }
 
+      if (state.restrictVoters && !state.approvedVoters.includes(id)) {
+        return showAlert(`Voter ID "${id}" is not on the approved voter roll.`, 'error');
+      }
+
+      const pinHash = simpleHash(id + ':' + pin);
+
       if (!state.voters[id]) {
-        state.voters[id] = { pin, hasVoted: false };
+        if (!state.pollsOpen) {
+          return showAlert('Polls are closed. New voter registration is disabled.', 'error');
+        }
+        state.voters[id] = {
+          pinHash,
+          hasVoted: false,
+          receipt: null,
+          votedAt: null
+        };
         saveState();
         currentUser = id;
-        showAlert(`Voter ${id} registered and signed in.`);
+        showAlert(`Voter ${id} verified and signed in.`);
       } else {
-        if (state.voters[id].pin !== pin) {
+        if (state.voters[id].pinHash !== pinHash) {
           return showAlert('Incorrect PIN for this Voter ID.', 'error');
         }
         currentUser = id;
@@ -252,20 +341,29 @@
     }
 
     function castVote(candidateId) {
-      if (!currentUser) {
+      if (!state.pollsOpen) {
+        return showAlert('Polls are currently closed.', 'error');
+      }
+      if (!currentUser || !state.voters[currentUser]) {
         return showAlert('Please sign in first.', 'error');
       }
       const voter = state.voters[currentUser];
       if (voter.hasVoted) {
-        return showAlert('You have already voted.', 'error');
+        return showAlert('You have already cast your ballot.', 'error');
       }
       const candidate = state.candidates.find(c => c.id === candidateId);
       if (!candidate) return;
 
+      if (!confirm(`Confirm your vote for ${candidate.name} (${candidate.party})? This cannot be undone.`)) {
+        return;
+      }
+
       candidate.votes += 1;
       voter.hasVoted = true;
+      voter.receipt = generateReceipt(currentUser);
+      voter.votedAt = new Date().toLocaleString();
       saveState();
-      showAlert(`Vote cast for ${candidate.name}.`);
+      showAlert(`Ballot recorded for ${candidate.name}.`);
       render();
     }
 
@@ -276,22 +374,71 @@
 
     function unlockAdmin() {
       const pin = document.getElementById('admin-pin-input').value;
-      if (pin !== ADMIN_PIN) {
+      if (pin !== state.adminPin) {
         return showAlert('Invalid Admin PIN.', 'error');
       }
       adminUnlocked = true;
+      document.getElementById('admin-pin-input').value = '';
       document.getElementById('admin-lock').style.display = 'none';
       document.getElementById('admin-controls').style.display = 'block';
       document.getElementById('election-title-input').value = state.title;
+      document.getElementById('restrict-voters-chk').checked = state.restrictVoters;
+      document.getElementById('approved-list-box').style.display = state.restrictVoters ? 'block' : 'none';
+      document.getElementById('approved-voters-input').value = state.approvedVoters.join(', ');
       showAlert('Admin panel unlocked.');
+      render();
+    }
+
+    function togglePolls() {
+      state.pollsOpen = !state.pollsOpen;
+      saveState();
+      showAlert(state.pollsOpen ? 'Polls are now OPEN.' : 'Polls are now CLOSED.');
+      render();
+    }
+
+    function toggleResultsVisibility() {
+      state.showLiveResults = !state.showLiveResults;
+      saveState();
+      showAlert(state.showLiveResults ? 'Live results are visible.' : 'Live results hidden until polls close.');
+      render();
     }
 
     function updateTitle() {
-      const newTitle = document.getElementById('election-title-input').value.trim();
-      if (!newTitle) return;
-      state.title = newTitle;
+      const val = document.getElementById('election-title-input').value.trim();
+      if (!val) return;
+      state.title = val;
       saveState();
       showAlert('Election title updated.');
+      render();
+    }
+
+    function changeAdminPin() {
+      const newPin = document.getElementById('new-admin-pin').value.trim();
+      if (newPin.length < 4) {
+        return showAlert('Admin PIN must be at least 4 characters.', 'error');
+      }
+      state.adminPin = newPin;
+      document.getElementById('new-admin-pin').value = '';
+      saveState();
+      showAlert('Admin PIN updated.');
+    }
+
+    function toggleVoterRestriction() {
+      state.restrictVoters = document.getElementById('restrict-voters-chk').checked;
+      document.getElementById('approved-list-box').style.display = state.restrictVoters ? 'block' : 'none';
+      saveState();
+      render();
+    }
+
+    function saveApprovedVoters() {
+      const raw = document.getElementById('approved-voters-input').value;
+      const list = raw
+        .split(/[\s,]+/)
+        .map(s => s.trim().toUpperCase())
+        .filter(Boolean);
+      state.approvedVoters = Array.from(new Set(list));
+      saveState();
+      showAlert(`Saved ${state.approvedVoters.length} approved Voter IDs.`);
       render();
     }
 
@@ -309,12 +456,13 @@
       saveState();
       document.getElementById('cand-name').value = '';
       document.getElementById('cand-party').value = '';
-      showAlert(`Added candidate ${name}.`);
+      showAlert(`Added ${name}.`);
       render();
     }
 
     function removeCandidate(id) {
       if (!adminUnlocked) return;
+      if (!confirm('Remove this candidate?')) return;
       state.candidates = state.candidates.filter(c => c.id !== id);
       saveState();
       showAlert('Candidate removed.');
@@ -322,27 +470,41 @@
     }
 
     function resetElection() {
-      if (!confirm('Reset all votes and registered voters?')) return;
+      if (!confirm('Reset all votes, receipts, and registered voters?')) return;
       state.candidates.forEach(c => (c.votes = 0));
       state.voters = {};
+      state.pollsOpen = true;
       currentUser = null;
       saveState();
-      showAlert('Election reset.');
+      showAlert('Election has been reset.');
       render();
     }
 
     function exportResults() {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        title: state.title,
+        pollsOpen: state.pollsOpen,
+        totalVotesCast: state.candidates.reduce((sum, c) => sum + c.votes, 0),
+        candidates: state.candidates,
+        voterAuditLog: Object.entries(state.voters).map(([id, v]) => ({
+          voterId: id,
+          hasVoted: v.hasVoted,
+          receipt: v.receipt,
+          votedAt: v.votedAt
+        }))
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'election-results.json';
+      a.download = `election-results-${Date.now()}.json`;
       a.click();
       URL.revokeObjectURL(url);
     }
 
     function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, m => ({
+      return String(str).replace(/[&<>"']/g, m => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
       }[m]));
     }
@@ -350,31 +512,51 @@
     function render() {
       document.getElementById('election-title').textContent = state.title;
 
+      const statusBadge = document.getElementById('election-status-badge');
+      statusBadge.textContent = state.pollsOpen ? 'Polls Open' : 'Polls Closed';
+      statusBadge.className = `badge ${state.pollsOpen ? 'open' : 'closed'}`;
+
+      document.getElementById('auth-help-text').textContent = state.restrictVoters
+        ? 'Enter your pre-approved Voter ID and 4+ digit PIN to sign in.'
+        : 'Enter a Voter ID and 4+ digit PIN to register or sign in.';
+
+      if (adminUnlocked) {
+        document.getElementById('toggle-polls-btn').textContent = state.pollsOpen ? 'Close Polls' : 'Reopen Polls';
+        document.getElementById('toggle-results-btn').textContent = state.showLiveResults ? 'Hide Live Tally' : 'Show Live Tally';
+      }
+
       const authCard = document.getElementById('auth-card');
       const sessionCard = document.getElementById('session-card');
+      const receiptContainer = document.getElementById('receipt-container');
 
       if (currentUser && state.voters[currentUser]) {
+        const voter = state.voters[currentUser];
         authCard.style.display = 'none';
         sessionCard.style.display = 'block';
         document.getElementById('current-voter').textContent = currentUser;
-        document.getElementById('vote-status').textContent =
-          state.voters[currentUser].hasVoted ? 'Ballot Cast' : 'Eligible to Vote';
+        document.getElementById('vote-status').textContent = voter.hasVoted ? 'Ballot Cast' : 'Eligible to Vote';
+
+        if (voter.hasVoted && voter.receipt) {
+          receiptContainer.innerHTML = `
+            <div class="receipt-box">
+              <strong>Confirmation Receipt:</strong> ${escapeHtml(voter.receipt)}<br/>
+              <span class="muted">Recorded: ${escapeHtml(voter.votedAt)}</span>
+            </div>`;
+        } else {
+          receiptContainer.innerHTML = '';
+        }
       } else {
         authCard.style.display = 'block';
         sessionCard.style.display = 'none';
+        receiptContainer.innerHTML = '';
       }
 
       const totalVotes = state.candidates.reduce((sum, c) => sum + c.votes, 0);
-      document.getElementById('total-votes').textContent = `Total Votes: ${totalVotes}`;
+      const canSeeNumbers = state.showLiveResults || !state.pollsOpen || adminUnlocked;
+      document.getElementById('total-votes').textContent = canSeeNumbers
+        ? `Total Votes: ${totalVotes}`
+        : 'Results hidden while polls are open';
 
-      const canVote = currentUser && state.voters[currentUser] && !state.voters[currentUser].hasVoted;
-      const list = document.getElementById('candidate-list');
-
-      list.innerHTML = state.candidates.map(c => {
-        const pct = totalVotes > 0 ? Math.round((c.votes / totalVotes) * 100) : 0;
-        return `
-          <div class="row">
-            <div style="flex:1;">
-              <strong>${escapeHtml(c.name)}</strong>
-              <span class="muted"> —
-    
+      const maxVotes = Math.max(0, ...state.candidates.map(c => c.votes));
+      const canVote = state.pollsOpen && currentUser && state.voters[currentUser] && !state.voters[currentUser].hasVoted;
+      const list = document.get
