@@ -1,562 +1,367 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Online Voting System</title>
+  <title>CivicPulse 2026 | Modern Online Voting System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Fraunces', 'Georgia', 'serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: '#0B0F19',
+            indigoCivic: '#3730A3',
+            indigoBright: '#4F46E5',
+            goldCivic: '#D97706',
+            goldSoft: '#FEF3C7',
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    :root {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --border: #cbd5e1;
-      --text: #0f172a;
-      --muted: #64748b;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --danger: #dc2626;
-      --danger-hover: #b91c1c;
-      --success: #16a34a;
-      --warning: #d97706;
-    }
-    * { box-sizing: border-box; }
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      max-width: 780px;
-      margin: 1.5rem auto;
-      padding: 0 1rem 3rem;
-      line-height: 1.5;
+      background-color: #FAFAFA;
+      color: #0B0F19;
+      background-image: radial-gradient(#E2E8F0 0.85px, transparent 0.85px);
+      background-size: 24px 24px;
     }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.25rem;
-      flex-wrap: wrap;
-      gap: 0.75rem;
+
+    @keyframes floatIn {
+      0% { opacity: 0; transform: translateY(14px) scale(0.985); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
     }
-    h1 { font-size: 1.5rem; margin: 0; }
-    h2 { font-size: 1.15rem; margin: 0 0 0.75rem; }
-    h3 { font-size: 1rem; margin: 1rem 0 0.5rem; }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    .animate-float-in {
+      animation: floatIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    .row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.9rem 0;
-      border-bottom: 1px solid #e2e8f0;
-      gap: 1rem;
+
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.7; }
+      70% { transform: scale(1.35); opacity: 0; }
+      100% { transform: scale(1.35); opacity: 0; }
     }
-    .row:last-child { border-bottom: none; padding-bottom: 0; }
-    .form-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 0.6rem;
+    .live-dot::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 9999px;
+      background-color: currentColor;
+      animation: pulseRing 1.8s infinite;
     }
-    input, textarea, select {
-      padding: 0.55rem 0.75rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      font-family: inherit;
-      flex: 1 1 160px;
+
+    @keyframes confettiPop {
+      0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+      100% { transform: translateY(-90px) rotate(360deg) scale(0.4); opacity: 0; }
     }
-    textarea { width: 100%; min-height: 70px; }
-    button {
-      padding: 0.55rem 1rem;
-      border: none;
-      border-radius: 6px;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.15s;
+    .confetti-piece {
+      position: fixed;
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 100;
+      animation: confettiPop 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
-    button:hover:not(:disabled) { background: var(--primary-hover); }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    button.secondary { background: #475569; }
-    button.secondary:hover:not(:disabled) { background: #334155; }
-    button.danger { background: var(--danger); }
-    button.danger:hover:not(:disabled) { background: var(--danger-hover); }
-    button.success { background: var(--success); }
-    .badge {
-      display: inline-block;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 700;
-    }
-    .badge.open { background: #dcfce7; color: #166534; }
-    .badge.closed { background: #fee2e2; color: #991b1b; }
-    .badge.info { background: #e0e7ff; color: #1e40af; }
-    .progress-wrap {
-      background: #e2e8f0;
-      border-radius: 999px;
-      height: 8px;
-      width: 100%;
-      margin-top: 0.45rem;
-      overflow: hidden;
-    }
-    .progress-bar {
-      background: var(--primary);
-      height: 100%;
-      transition: width 0.25s ease;
-    }
-    .progress-bar.winner { background: var(--success); }
-    #alert {
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      font-weight: 600;
-      display: none;
-    }
-    #alert.error { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-    #alert.success { display: block; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-    .muted { color: var(--muted); font-size: 0.88rem; }
-    .receipt-box {
-      background: #f8fafc;
-      border: 1px dashed var(--border);
-      padding: 0.75rem;
-      border-radius: 6px;
-      margin-top: 0.75rem;
-      font-family: monospace;
-      font-size: 0.85rem;
-    }
-    .admin-section {
-      border-top: 1px solid #e2e8f0;
-      padding-top: 0.9rem;
-      margin-top: 0.9rem;
-    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
   </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col selection:bg-indigo-100 selection:text-indigo-900">
 
-  <header>
-    <div>
-      <h1 id="election-title">General Election 2026</h1>
-      <div style="margin-top:0.25rem;">
-        <span id="election-status-badge" class="badge open">Polls Open</span>
-        <span class="muted" id="election-subtitle" style="margin-left:0.4rem;">Official Voting Portal</span>
+  <!-- ===================================================================== -->
+  <!-- 1. STICKY GLASSMORPHISM HEADER                                        -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-200/90 shadow-[0_2px_16px_rgba(11,15,25,0.04)]">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      
+      <!-- Brand & Status Pill -->
+      <div class="flex items-center justify-between md:justify-start gap-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-obsidian text-white flex items-center justify-center shadow-sm relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-tr from-indigo-700/60 via-transparent to-amber-500/40"></div>
+            <svg class="w-5 h-5 relative z-10 text-amber-300" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-serif font-bold text-lg tracking-tight text-obsidian">CivicPulse</span>
+              <span id="headerPollPill" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span class="relative w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
+                POLLS OPEN
+              </span>
+            </div>
+            <div class="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+              <span>2026 General Assembly</span>
+              <span>•</span>
+              <span class="font-mono text-indigo-700 font-semibold" id="countdownTimer">Closes in 04:59:59</span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 self-start md:self-auto">
+        <button 
+          type="button" 
+          id="tabBtnBallot" 
+          onclick="switchTab('ballot')" 
+          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-obsidian shadow-xs cursor-pointer flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+          </svg>
+          Cast Ballot
+        </button>
+        <button 
+          type="button" 
+          id="tabBtnTally" 
+          onclick="switchTab('tally')" 
+          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-obsidian cursor-pointer flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+          </svg>
+          Live Tally
+        </button>
+        <button 
+          type="button" 
+          id="tabBtnAdmin" 
+          onclick="switchTab('admin')" 
+          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-obsidian cursor-pointer flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+          </svg>
+          Admin Studio
+        </button>
+      </nav>
     </div>
-    <button class="secondary" onclick="toggleAdmin()">Admin Panel</button>
   </header>
 
-  <div id="alert"></div>
+  <!-- ===================================================================== -->
+  <!-- MAIN APPLICATION CONTAINER                                            -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-7 space-y-8">
 
-  <!-- Voter Sign In / Register -->
-  <div id="auth-card" class="card">
-    <h2>Voter Verification</h2>
-    <p class="muted" id="auth-help-text">Enter your Voter ID and 4+ digit PIN to register or sign in.</p>
-    <div class="form-group">
-      <input id="voter-id" type="text" placeholder="Voter ID (e.g., V1001)" autocomplete="off" />
-      <input id="voter-pin" type="password" placeholder="4+ digit PIN" />
-      <button id="auth-btn" onclick="loginOrRegister()">Sign In / Register</button>
-    </div>
-  </div>
+    <!-- =================================================================== -->
+    <!-- TAB 1: CAST BALLOT (HERO + AUTH + MULTI-POSITION BALLOT + RECEIPT)  -->
+    <!-- =================================================================== -->
+    <section id="viewBallot" class="space-y-8 animate-float-in">
+      
+      <!-- 2. EDITORIAL HERO BANNER -->
+      <div id="heroBanner" class="relative overflow-hidden rounded-3xl bg-white border border-slate-200 shadow-[0_12px_40px_rgba(11,15,25,0.06)] p-6 sm:p-10">
+        <!-- Decorative Accent Blurs -->
+        <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-amber-300/20 blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none"></div>
 
-  <!-- Active Voter Session -->
-  <div id="session-card" class="card" style="display:none;">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-      <div>
-        <strong>Signed in as:</strong> <span id="current-voter"></span>
-        <span id="vote-status" class="badge info" style="margin-left:0.4rem;"></span>
-      </div>
-      <button class="secondary" onclick="logout()">Sign Out</button>
-    </div>
-    <div id="receipt-container"></div>
-  </div>
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <!-- Left Editorial Copy -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200/90 text-amber-800 text-xs font-bold tracking-wide uppercase">
+              <span class="text-amber-500">★</span> Official 2026 Leadership & Governance Election
+            </div>
+            <h1 class="font-serif text-3xl sm:text-4xl lg:text-[42px] font-extrabold text-obsidian leading-[1.12] tracking-tight">
+              Your Voice Shapes the <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 via-indigo-600 to-amber-600">Next Era</span> of Leadership.
+            </h1>
+            <p class="text-sm sm:text-base text-slate-600 leading-relaxed max-w-xl">
+              Review candidate manifestos across three executive offices, cast your encrypted secret ballot, and verify your inclusion with an instant cryptographic receipt.
+            </p>
 
-  <!-- Ballot & Live Tally -->
-  <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-      <h2>Ballot & Results</h2>
-      <span class="muted" id="total-votes">Total Votes: 0</span>
-    </div>
-    <div id="candidate-list"></div>
-  </div>
+            <!-- Quick One-Click Demo Voter Pills -->
+            <div class="pt-2">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                  Instant Demo Voter Access (Click to auto-fill)
+                </span>
+              </div>
+              <div id="demoQuickPills" class="flex flex-wrap gap-2"></div>
+            </div>
+          </div>
 
-  <!-- Admin Panel -->
-  <div id="admin-card" class="card" style="display:none;">
-    <h2>Election Administration</h2>
-    <div id="admin-lock">
-      <p class="muted">Default Admin PIN: <strong>1234</strong></p>
-      <div class="form-group">
-        <input id="admin-pin-input" type="password" placeholder="Enter Admin PIN" />
-        <button onclick="unlockAdmin()">Unlock Admin</button>
-      </div>
-    </div>
+          <!-- Right Auth Card (Login / Register Toggle) -->
+          <div class="lg:col-span-5 bg-slate-50/90 rounded-2xl border border-slate-200/90 p-5 sm:p-6 shadow-xs">
+            <!-- Mode Switcher -->
+            <div class="flex p-1 bg-slate-200/70 rounded-xl mb-5">
+              <button 
+                type="button" 
+                id="authModeLoginBtn" 
+                onclick="setAuthMode('login')" 
+                class="flex-1 py-2 text-xs font-bold rounded-lg bg-white text-obsidian shadow-xs transition-all cursor-pointer">
+                Verified Voter Login
+              </button>
+              <button 
+                type="button" 
+                id="authModeRegBtn" 
+                onclick="setAuthMode('register')" 
+                class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-600 hover:text-obsidian transition-all cursor-pointer">
+                Register New Voter
+              </button>
+            </div>
 
-    <div id="admin-controls" style="display:none;">
-      <div class="form-group">
-        <button id="toggle-polls-btn" class="secondary" onclick="togglePolls()">Close Polls</button>
-        <button id="toggle-results-btn" class="secondary" onclick="toggleResultsVisibility()">Hide Live Tally</button>
-        <button class="secondary" onclick="exportResults()">Export JSON</button>
-        <button class="danger" onclick="resetElection()">Reset Election</button>
-      </div>
+            <!-- LOGIN FORM -->
+            <div id="loginFormBox" class="space-y-3.5">
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Voter ID</label>
+                <input 
+                  type="text" 
+                  id="loginVoterId" 
+                  placeholder="e.g., EL-2026-01" 
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-600"
+                />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">4-Digit Security PIN</label>
+                <input 
+                  type="password" 
+                  id="loginVoterPin" 
+                  placeholder="••••" 
+                  onkeydown="if(event.key==='Enter') handleVoterLogin()"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-600"
+                />
+              </div>
+              <button 
+                type="button" 
+                onclick="handleVoterLogin()" 
+                class="w-full py-3 rounded-xl bg-obsidian hover:bg-indigo-950 text-white font-semibold text-sm shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2">
+                <span>Unlock Official Ballot</span>
+                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </button>
+            </div>
 
-      <div class="admin-section">
-        <h3>Election Details & Security</h3>
-        <div class="form-group">
-          <input id="election-title-input" type="text" placeholder="Election Title" />
-          <button onclick="updateTitle()">Save Title</button>
+            <!-- REGISTER NEW VOTER FORM -->
+            <div id="registerFormBox" class="hidden space-y-3">
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Full Legal Name</label>
+                <input 
+                  type="text" 
+                  id="regFullName" 
+                  placeholder="e.g., Mateo Santos" 
+                  class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-600"
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Department / Track</label>
+                  <input 
+                    type="text" 
+                    id="regDept" 
+                    placeholder="e.g., Computer Science" 
+                    class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-600"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-600 mb-1">Create 4-Digit PIN</label>
+                  <input 
+                    type="password" 
+                    id="regPin" 
+                    maxlength="6"
+                    placeholder="e.g., 4321" 
+                    class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/25 focus:border-indigo-600"
+                  />
+                </div>
+              </div>
+              <button 
+                type="button" 
+                onclick="handleVoterRegistration()" 
+                class="w-full py-2.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-semibold text-sm shadow-sm transition-all cursor-pointer">
+                Generate Voter ID & Sign In
+              </button>
+            </div>
+          </div>
+
         </div>
-        <div class="form-group">
-          <input id="new-admin-pin" type="password" placeholder="New Admin PIN (4+ chars)" />
-          <button onclick="changeAdminPin()">Change Admin PIN</button>
+      </div>
+
+      <!-- 3A. INTERACTIVE MULTI-POSITION BALLOT WORKSPACE (Visible when logged in & not yet voted) -->
+      <div id="ballotWorkspace" class="hidden space-y-6 animate-float-in">
+        
+        <!-- Sticky Ballot Progress & Voter Bar -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold flex items-center justify-center text-sm">
+              ID
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span id="activeVoterName" class="font-bold text-obsidian text-base"></span>
+                <span id="activeVoterIdTag" class="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 font-mono text-xs font-semibold text-slate-700"></span>
+              </div>
+              <p id="activeVoterDept" class="text-xs text-slate-500"></p>
+            </div>
+          </div>
+
+          <!-- Completion Progress Bar -->
+          <div class="flex-1 max-w-xs">
+            <div class="flex justify-between text-xs font-semibold mb-1.5">
+              <span class="text-slate-600">Ballot Completion</span>
+              <span id="ballotProgressLabel" class="text-indigo-700 font-mono">0 / 3 Selected</span>
+            </div>
+            <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/80">
+              <div id="ballotProgressBar" class="h-full bg-gradient-to-r from-indigo-600 to-amber-500 rounded-full transition-all duration-300" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <button 
+            type="button" 
+            onclick="logoutVoter()" 
+            class="px-3.5 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors self-start md:self-auto cursor-pointer">
+            Sign Out
+          </button>
         </div>
-        <label style="display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem; cursor:pointer;">
-          <input id="restrict-voters-chk" type="checkbox" style="flex:0;" onchange="toggleVoterRestriction()" />
-          <span>Restrict voting to approved Voter ID list only</span>
-        </label>
-        <div id="approved-list-box" style="display:none; margin-top:0.5rem;">
-          <textarea id="approved-voters-input" placeholder="Comma or newline separated Voter IDs (e.g. V1001, V1002, V1003)"></textarea>
-          <button style="margin-top:0.4rem;" onclick="saveApprovedVoters()">Save Approved Voter IDs</button>
+
+        <!-- Dynamic Positions & Candidate Cards -->
+        <div id="positionsContainer" class="space-y-8"></div>
+
+        <!-- Bottom Seal & Submit Bar -->
+        <div class="bg-obsidian text-white rounded-2xl p-5 sm:p-6 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="font-serif text-lg font-bold text-white">Ready to Seal Your Official Ballot?</h3>
+            <p class="text-xs text-slate-300 mt-0.5">Review your choices carefully. Once cast, your ballot is anonymized and locked.</p>
+          </div>
+          <button 
+            type="button" 
+            onclick="openReviewModal()" 
+            class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-obsidian font-bold text-sm shadow-md transition-all cursor-pointer shrink-0">
+            Review & Seal Ballot →
+          </button>
         </div>
       </div>
 
-      <div class="admin-section">
-        <h3>Manage Candidates</h3>
-        <div class="form-group">
-          <input id="cand-name" type="text" placeholder="Candidate Full Name" />
-          <input id="cand-party" type="text" placeholder="Party / Slate" />
-          <button onclick="addCandidate()">Add Candidate</button>
+      <!-- 3B. OFFICIAL DIGITAL BALLOT RECEIPT (Shown after voting) -->
+      <div id="receiptCard" class="hidden max-w-2xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-[0_16px_48px_rgba(11,15,25,0.08)] overflow-hidden animate-float-in">
+        <div class="bg-obsidian text-white px-6 py-7 text-center relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-transparent to-amber-600/20"></div>
+          <div class="relative z-10">
+            <div class="w-14 h-14 rounded-2xl bg-amber-400/20 border border-amber-400/40 text-amber-300 mx-auto flex items-center justify-center mb-3">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-amber-300">Cryptographically Verified</span>
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold mt-1">Official Digital Ballot Receipt</h2>
+            <p class="text-xs text-slate-300 mt-1">Your vote has been recorded in the 2026 General Assembly ledger.</p>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <script>
-    const STORAGE_KEY = 'online_voting_single_file_v2';
+        <div class="p-6 sm:p-8 space-y-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <div>
+              <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Voter Credential</span>
+       
 
-    const defaultState = {
-      title: 'General Election 2026',
-      adminPin: '1234',
-      pollsOpen: true,
-      showLiveResults: true,
-      restrictVoters: false,
-      approvedVoters: ['V1001', 'V1002', 'V1003', 'V1004', 'V1005'],
-      candidates: [
-        { id: 1, name: 'Elena Rostova', party: 'Civic Progress', votes: 0 },
-        { id: 2, name: 'Marcus Vance', party: 'Open Future', votes: 0 },
-        { id: 3, name: 'Devon Brooks', party: 'Independent', votes: 0 }
-      ],
-      voters: {} // { [voterId]: { pinHash, hasVoted, receipt, votedAt } }
-    };
+    
 
-    let state = loadState();
-    let currentUser = null;
-    let adminUnlocked = false;
+      
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return JSON.parse(JSON.stringify(defaultState));
-        return Object.assign(JSON.parse(JSON.stringify(defaultState)), JSON.parse(raw));
-      } catch {
-        return JSON.parse(JSON.stringify(defaultState));
-      }
-    }
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function simpleHash(str) {
-      let hash = 2166136261;
-      for (let i = 0; i < str.length; i++) {
-        hash ^= str.charCodeAt(i);
-        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
-      }
-      return (hash >>> 0).toString(16).toUpperCase();
-    }
-
-    function generateReceipt(voterId) {
-      const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
-      return `BALLOT-${simpleHash(voterId + Date.now())}-${rand}`;
-    }
-
-    function showAlert(msg, type = 'success') {
-      const el = document.getElementById('alert');
-      el.textContent = msg;
-      el.className = type;
-      clearTimeout(el._timer);
-      el._timer = setTimeout(() => { el.className = ''; }, 5000);
-    }
-
-    function loginOrRegister() {
-      const id = document.getElementById('voter-id').value.trim().toUpperCase();
-      const pin = document.getElementById('voter-pin').value.trim();
-
-      if (!id || pin.length < 4) {
-        return showAlert('Enter a valid Voter ID and a PIN with at least 4 characters.', 'error');
-      }
-
-      if (state.restrictVoters && !state.approvedVoters.includes(id)) {
-        return showAlert(`Voter ID "${id}" is not on the approved voter roll.`, 'error');
-      }
-
-      const pinHash = simpleHash(id + ':' + pin);
-
-      if (!state.voters[id]) {
-        if (!state.pollsOpen) {
-          return showAlert('Polls are closed. New voter registration is disabled.', 'error');
-        }
-        state.voters[id] = {
-          pinHash,
-          hasVoted: false,
-          receipt: null,
-          votedAt: null
-        };
-        saveState();
-        currentUser = id;
-        showAlert(`Voter ${id} verified and signed in.`);
-      } else {
-        if (state.voters[id].pinHash !== pinHash) {
-          return showAlert('Incorrect PIN for this Voter ID.', 'error');
-        }
-        currentUser = id;
-        showAlert(`Welcome back, ${id}.`);
-      }
-
-      document.getElementById('voter-id').value = '';
-      document.getElementById('voter-pin').value = '';
-      render();
-    }
-
-    function logout() {
-      currentUser = null;
-      showAlert('Signed out.');
-      render();
-    }
-
-    function castVote(candidateId) {
-      if (!state.pollsOpen) {
-        return showAlert('Polls are currently closed.', 'error');
-      }
-      if (!currentUser || !state.voters[currentUser]) {
-        return showAlert('Please sign in first.', 'error');
-      }
-      const voter = state.voters[currentUser];
-      if (voter.hasVoted) {
-        return showAlert('You have already cast your ballot.', 'error');
-      }
-      const candidate = state.candidates.find(c => c.id === candidateId);
-      if (!candidate) return;
-
-      if (!confirm(`Confirm your vote for ${candidate.name} (${candidate.party})? This cannot be undone.`)) {
-        return;
-      }
-
-      candidate.votes += 1;
-      voter.hasVoted = true;
-      voter.receipt = generateReceipt(currentUser);
-      voter.votedAt = new Date().toLocaleString();
-      saveState();
-      showAlert(`Ballot recorded for ${candidate.name}.`);
-      render();
-    }
-
-    function toggleAdmin() {
-      const card = document.getElementById('admin-card');
-      card.style.display = card.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function unlockAdmin() {
-      const pin = document.getElementById('admin-pin-input').value;
-      if (pin !== state.adminPin) {
-        return showAlert('Invalid Admin PIN.', 'error');
-      }
-      adminUnlocked = true;
-      document.getElementById('admin-pin-input').value = '';
-      document.getElementById('admin-lock').style.display = 'none';
-      document.getElementById('admin-controls').style.display = 'block';
-      document.getElementById('election-title-input').value = state.title;
-      document.getElementById('restrict-voters-chk').checked = state.restrictVoters;
-      document.getElementById('approved-list-box').style.display = state.restrictVoters ? 'block' : 'none';
-      document.getElementById('approved-voters-input').value = state.approvedVoters.join(', ');
-      showAlert('Admin panel unlocked.');
-      render();
-    }
-
-    function togglePolls() {
-      state.pollsOpen = !state.pollsOpen;
-      saveState();
-      showAlert(state.pollsOpen ? 'Polls are now OPEN.' : 'Polls are now CLOSED.');
-      render();
-    }
-
-    function toggleResultsVisibility() {
-      state.showLiveResults = !state.showLiveResults;
-      saveState();
-      showAlert(state.showLiveResults ? 'Live results are visible.' : 'Live results hidden until polls close.');
-      render();
-    }
-
-    function updateTitle() {
-      const val = document.getElementById('election-title-input').value.trim();
-      if (!val) return;
-      state.title = val;
-      saveState();
-      showAlert('Election title updated.');
-      render();
-    }
-
-    function changeAdminPin() {
-      const newPin = document.getElementById('new-admin-pin').value.trim();
-      if (newPin.length < 4) {
-        return showAlert('Admin PIN must be at least 4 characters.', 'error');
-      }
-      state.adminPin = newPin;
-      document.getElementById('new-admin-pin').value = '';
-      saveState();
-      showAlert('Admin PIN updated.');
-    }
-
-    function toggleVoterRestriction() {
-      state.restrictVoters = document.getElementById('restrict-voters-chk').checked;
-      document.getElementById('approved-list-box').style.display = state.restrictVoters ? 'block' : 'none';
-      saveState();
-      render();
-    }
-
-    function saveApprovedVoters() {
-      const raw = document.getElementById('approved-voters-input').value;
-      const list = raw
-        .split(/[\s,]+/)
-        .map(s => s.trim().toUpperCase())
-        .filter(Boolean);
-      state.approvedVoters = Array.from(new Set(list));
-      saveState();
-      showAlert(`Saved ${state.approvedVoters.length} approved Voter IDs.`);
-      render();
-    }
-
-    function addCandidate() {
-      const name = document.getElementById('cand-name').value.trim();
-      const party = document.getElementById('cand-party').value.trim() || 'Independent';
-      if (!name) return showAlert('Candidate name is required.', 'error');
-
-      state.candidates.push({
-        id: Date.now(),
-        name,
-        party,
-        votes: 0
-      });
-      saveState();
-      document.getElementById('cand-name').value = '';
-      document.getElementById('cand-party').value = '';
-      showAlert(`Added ${name}.`);
-      render();
-    }
-
-    function removeCandidate(id) {
-      if (!adminUnlocked) return;
-      if (!confirm('Remove this candidate?')) return;
-      state.candidates = state.candidates.filter(c => c.id !== id);
-      saveState();
-      showAlert('Candidate removed.');
-      render();
-    }
-
-    function resetElection() {
-      if (!confirm('Reset all votes, receipts, and registered voters?')) return;
-      state.candidates.forEach(c => (c.votes = 0));
-      state.voters = {};
-      state.pollsOpen = true;
-      currentUser = null;
-      saveState();
-      showAlert('Election has been reset.');
-      render();
-    }
-
-    function exportResults() {
-      const exportData = {
-        exportedAt: new Date().toISOString(),
-        title: state.title,
-        pollsOpen: state.pollsOpen,
-        totalVotesCast: state.candidates.reduce((sum, c) => sum + c.votes, 0),
-        candidates: state.candidates,
-        voterAuditLog: Object.entries(state.voters).map(([id, v]) => ({
-          voterId: id,
-          hasVoted: v.hasVoted,
-          receipt: v.receipt,
-          votedAt: v.votedAt
-        }))
-      };
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `election-results-${Date.now()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function escapeHtml(str) {
-      return String(str).replace(/[&<>"']/g, m => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[m]));
-    }
-
-    function render() {
-      document.getElementById('election-title').textContent = state.title;
-
-      const statusBadge = document.getElementById('election-status-badge');
-      statusBadge.textContent = state.pollsOpen ? 'Polls Open' : 'Polls Closed';
-      statusBadge.className = `badge ${state.pollsOpen ? 'open' : 'closed'}`;
-
-      document.getElementById('auth-help-text').textContent = state.restrictVoters
-        ? 'Enter your pre-approved Voter ID and 4+ digit PIN to sign in.'
-        : 'Enter a Voter ID and 4+ digit PIN to register or sign in.';
-
-      if (adminUnlocked) {
-        document.getElementById('toggle-polls-btn').textContent = state.pollsOpen ? 'Close Polls' : 'Reopen Polls';
-        document.getElementById('toggle-results-btn').textContent = state.showLiveResults ? 'Hide Live Tally' : 'Show Live Tally';
-      }
-
-      const authCard = document.getElementById('auth-card');
-      const sessionCard = document.getElementById('session-card');
-      const receiptContainer = document.getElementById('receipt-container');
-
-      if (currentUser && state.voters[currentUser]) {
-        const voter = state.voters[currentUser];
-        authCard.style.display = 'none';
-        sessionCard.style.display = 'block';
-        document.getElementById('current-voter').textContent = currentUser;
-        document.getElementById('vote-status').textContent = voter.hasVoted ? 'Ballot Cast' : 'Eligible to Vote';
-
-        if (voter.hasVoted && voter.receipt) {
-          receiptContainer.innerHTML = `
-            <div class="receipt-box">
-              <strong>Confirmation Receipt:</strong> ${escapeHtml(voter.receipt)}<br/>
-              <span class="muted">Recorded: ${escapeHtml(voter.votedAt)}</span>
-            </div>`;
-        } else {
-          receiptContainer.innerHTML = '';
-        }
-      } else {
-        authCard.style.display = 'block';
-        sessionCard.style.display = 'none';
-        receiptContainer.innerHTML = '';
-      }
-
-      const totalVotes = state.candidates.reduce((sum, c) => sum + c.votes, 0);
-      const canSeeNumbers = state.showLiveResults || !state.pollsOpen || adminUnlocked;
-      document.getElementById('total-votes').textContent = canSeeNumbers
-        ? `Total Votes: ${totalVotes}`
-        : 'Results hidden while polls are open';
-
-      const maxVotes = Math.max(0, ...state.candidates.map(c => c.votes));
-      const canVote = state.pollsOpen && currentUser && state.voters[currentUser] && !state.voters[currentUser].hasVoted;
-      const list = document.get
