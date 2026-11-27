@@ -2,199 +2,86 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0f172a" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>CivicVote — Mobile Voting App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Voting System</title>
   <style>
     :root {
-      --bg: #f1f5f9;
+      --bg: #f4f6fb;
       --card: #ffffff;
       --ink: #0f172a;
       --muted: #64748b;
       --line: #e2e8f0;
-      --primary: #0f172a;
-      --primary-hover: #1e293b;
-      --accent: #2563eb;
-      --accent-soft: #eff6ff;
-      --success: #15803d;
-      --success-soft: #f0fdf4;
+      --primary: #1d4ed8;
+      --primary-hover: #1e40af;
       --danger: #b91c1c;
-      --danger-soft: #fef2f2;
-      --radius: 16px;
-      --radius-sm: 10px;
-      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      --radius: 12px;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--ink);
-      min-height: 100dvh;
+      padding: 24px 16px;
       display: flex;
       justify-content: center;
+      min-height: 100vh;
     }
 
-    /* App Shell */
-    .app-shell {
+    .app {
       width: 100%;
-      max-width: 480px;
-      min-height: 100dvh;
-      background: var(--card);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      box-shadow: 0 0 40px rgba(15, 23, 42, 0.08);
-    }
-
-    .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: rgba(255, 255, 255, 0.94);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--line);
-      padding: 14px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .app-brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .app-logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      background: var(--primary);
-      color: #fff;
-      display: grid;
-      place-items: center;
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .app-title {
-      font-size: 16px;
-      font-weight: 700;
-      line-height: 1.15;
-    }
-
-    .app-subtitle {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .poll-pill {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: var(--success-soft);
-      color: var(--success);
-      border: 1px solid #bbf7d0;
-    }
-
-    .poll-pill.closed {
-      background: var(--danger-soft);
-      color: var(--danger);
-      border-color: #fecaca;
-    }
-
-    .app-content {
-      flex: 1;
-      padding: 18px 18px 92px;
-    }
-
-    /* Typography & Cards */
-    .section-card {
+      max-width: 520px;
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 18px;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow);
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
     }
 
-    .card-heading {
-      font-size: 17px;
-      font-weight: 700;
-      margin-bottom: 4px;
+    h1 {
+      font-size: 24px;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 6px;
     }
 
-    .card-desc {
-      font-size: 13px;
+    .sub {
+      text-align: center;
       color: var(--muted);
-      margin-bottom: 14px;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      font-size: 17px;
+      margin-bottom: 12px;
     }
 
     .field {
       margin-bottom: 12px;
     }
 
-    .field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 5px;
-      color: var(--ink);
-    }
-
-    .input,
-    .select {
+    input {
       width: 100%;
-      padding: 12px 14px;
-      border-radius: var(--radius-sm);
+      padding: 11px 13px;
       border: 1px solid var(--line);
+      border-radius: 8px;
       font-size: 15px;
-      font-family: inherit;
-      background: #fff;
-      color: var(--ink);
-      outline: none;
     }
 
-    .input:focus,
-    .select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-
-    .btn {
+    button {
       width: 100%;
-      padding: 13px 16px;
-      border-radius: var(--radius-sm);
-      border: 1px solid transparent;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
       font-size: 14px;
-      font-weight: 700;
-      font-family: inherit;
+      font-weight: 600;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: transform 0.08s ease, background 0.15s ease;
-    }
-
-    .btn:active {
-      transform: scale(0.985);
-    }
-
-    .btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
     }
 
     .btn-primary {
@@ -202,652 +89,294 @@
       color: #fff;
     }
 
-    .btn-primary:hover:not(:disabled) {
+    .btn-primary:hover {
       background: var(--primary-hover);
     }
 
-    .btn-accent {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .btn-outline {
-      background: #fff;
+    .btn-secondary {
+      background: #e2e8f0;
       color: var(--ink);
-      border-color: var(--line);
+      margin-top: 8px;
     }
 
     .btn-danger {
-      background: var(--danger-soft);
-      color: var(--danger);
-      border-color: #fecaca;
-    }
-
-    .btn-sm {
-      width: auto;
-      padding: 7px 12px;
-      font-size: 12px;
-    }
-
-    .demo-banner {
-      background: var(--accent-soft);
-      border: 1px solid #bfdbfe;
-      border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      margin-bottom: 14px;
-      font-size: 12px;
-      color: #1e3a8a;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .auth-tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      background: var(--bg);
-      padding: 4px;
-      border-radius: var(--radius-sm);
-      margin-bottom: 16px;
-    }
-
-    .auth-tab {
-      border: none;
-      background: transparent;
-      padding: 9px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
-    }
-
-    .auth-tab.active {
-      background: #fff;
-      color: var(--ink);
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
-    }
-
-    /* Candidate Choice Cards */
-    .voter-strip {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--bg);
-      padding: 12px 14px;
-      border-radius: var(--radius-sm);
-      margin-bottom: 16px;
-      font-size: 13px;
-    }
-
-    .candidate-option {
-      border: 1.5px solid var(--line);
-      border-radius: var(--radius-sm);
-      padding: 14px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      cursor: pointer;
-      transition: all 0.14s ease;
-    }
-
-    .candidate-option.selected {
-      border-color: var(--accent);
-      background: var(--accent-soft);
-    }
-
-    .candidate-name {
-      font-weight: 700;
-      font-size: 15px;
-    }
-
-    .candidate-tagline {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .radio-ring {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      border: 2px solid #cbd5e1;
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    .candidate-option.selected .radio-ring {
-      background: var(--accent);
-      border-color: var(--accent);
+      background: var(--danger);
       color: #fff;
+      margin-top: 8px;
     }
 
-    /* Receipt Card */
-    .receipt-box {
-      background: var(--success-soft);
-      border: 1px solid #bbf7d0;
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 16px;
+    hr {
+      border: none;
+      border-top: 1px solid var(--line);
+      margin: 20px 0;
     }
 
-    .receipt-code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 12px;
-      background: #fff;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #bbf7d0;
-      margin: 10px 0;
-      word-break: break-all;
-    }
-
-    /* Tally Bars */
-    .tally-item {
-      margin-bottom: 14px;
-    }
-
-    .tally-meta {
+    .option {
       display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      margin-bottom: 5px;
+      align-items: center;
+      gap: 10px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      background: #f8fafc;
     }
 
-    .bar-bg {
-      height: 9px;
-      background: var(--bg);
+    .option input {
+      width: auto;
+    }
+
+    .results {
+      margin-top: 20px;
+      padding: 16px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 10px;
+    }
+
+    .bar-wrap {
+      height: 8px;
+      background: #dcfce7;
       border-radius: 999px;
       overflow: hidden;
+      margin: 6px 0 12px;
     }
 
-    .bar-fill {
+    .bar {
       height: 100%;
-      background: var(--accent);
-      border-radius: 999px;
-      transition: width 0.35s ease;
-    }
-
-    /* Bottom App Navigation */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 480px;
-      background: rgba(255, 255, 255, 0.96);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid var(--line);
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
-      z-index: 25;
-    }
-
-    .nav-btn {
-      background: transparent;
-      border: none;
-      padding: 6px 4px;
-      border-radius: 10px;
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-    }
-
-    .nav-btn.active {
-      color: var(--accent);
-      background: var(--accent-soft);
-    }
-
-    .toast {
-      position: fixed;
-      top: 68px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--ink);
-      color: #fff;
-      padding: 10px 16px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      z-index: 50;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
-      white-space: nowrap;
+      background: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
     }
 
     .hidden {
-      display: none !important;
+      display: none;
     }
 
-    .stack-gap {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 12px;
+    .footer-link {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .footer-link button {
+      width: auto;
+      background: none;
+      color: var(--primary);
+      text-decoration: underline;
+      font-size: 13px;
+      padding: 4px 8px;
     }
   </style>
 </head>
 <body>
-  <div class="app-shell">
-    <header class="app-header">
-      <div class="app-brand">
-        <div class="app-logo">✓</div>
-        <div>
-          <div class="app-title">CivicVote</div>
-          <div class="app-subtitle">Mobile Ballot App</div>
-        </div>
+  <div class="app">
+    <h1>Online Voting System</h1>
+    <p class="sub">Register, sign in, and cast one vote per user</p>
+
+    <!-- Auth Section -->
+    <div id="authSection">
+      <h2>Voter Registration</h2>
+      <div class="field">
+        <input type="text" id="regName" placeholder="Full Name" />
       </div>
-      <span class="poll-pill" id="pollBadge">Polls Open</span>
-    </header>
+      <div class="field">
+        <input type="password" id="regPin" placeholder="Voter PIN" />
+      </div>
+      <button class="btn-primary" onclick="registerVoter()">Register</button>
 
-    <main class="app-content">
-      <!-- TAB 1: VOTE -->
-      <section id="tab-vote">
-        <div id="authSection">
-          <div class="demo-banner">
-            <div><strong>Demo Voter:</strong> ID <code>V-101</code> · PIN <code>1234</code></div>
-            <button type="button" class="btn btn-accent btn-sm" onclick="fillDemoVoter()">Fill</button>
-          </div>
+      <hr />
 
-          <div class="section-card">
-            <div class="auth-tabs">
-              <button type="button" class="auth-tab active" id="switchLogin" onclick="setAuthTab('login')">Sign In</button>
-              <button type="button" class="auth-tab" id="switchRegister" onclick="setAuthTab('register')">Register</button>
-            </div>
+      <h2>Voter Login</h2>
+      <div class="field">
+        <input type="text" id="loginName" placeholder="Full Name" />
+      </div>
+      <div class="field">
+        <input type="password" id="loginPin" placeholder="Voter PIN" />
+      </div>
+      <button class="btn-secondary" onclick="loginVoter()">Login</button>
+    </div>
 
-            <form id="loginForm" onsubmit="loginVoter(event)">
-              <div class="card-heading">Voter Sign In</div>
-              <p class="card-desc">Enter your Voter ID and PIN to open your ballot.</p>
-              <div class="field">
-                <label for="loginId">Voter ID</label>
-                <input class="input" type="text" id="loginId" placeholder="e.g. V-101" required />
-              </div>
-              <div class="field">
-                <label for="loginPin">PIN</label>
-                <input class="input" type="password" id="loginPin" placeholder="••••" required />
-              </div>
-              <button type="submit" class="btn btn-primary">Continue to Ballot</button>
-            </form>
+    <!-- Voting Section -->
+    <div id="voteSection" class="hidden">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px;">
+        <h2 id="welcomeLabel" style="margin:0;">Welcome</h2>
+        <button class="btn-secondary" style="width:auto; margin:0; padding:8px 14px;" onclick="logoutVoter()">Logout</button>
+      </div>
 
-            <form id="registerForm" class="hidden" onsubmit="registerVoter(event)">
-              <div class="card-heading">New Voter Registration</div>
-              <p class="card-desc">Register to receive an instant Voter ID.</p>
-              <div class="field">
-                <label for="regName">Full Name</label>
-                <input class="input" type="text" id="regName" placeholder="Your full name" required />
-              </div>
-              <div class="field">
-                <label for="regPin">Choose PIN (4+ characters)</label>
-                <input class="input" type="password" id="regPin" placeholder="••••" minlength="4" required />
-              </div>
-              <button type="submit" class="btn btn-primary">Create Voter ID</button>
-            </form>
-          </div>
-        </div>
+      <h2>Choose Your Candidate</h2>
+      <label class="option"><input type="radio" name="cand" value="A" /> Candidate A</label>
+      <label class="option"><input type="radio" name="cand" value="B" /> Candidate B</label>
+      <label class="option"><input type="radio" name="cand" value="C" /> Candidate C</label>
 
-        <div id="ballotSection" class="hidden">
-          <div class="voter-strip">
-            <div>
-              <strong id="activeVoterName">Voter</strong> · <span id="activeVoterId">V-101</span>
-            </div>
-            <button type="button" class="btn btn-outline btn-sm" onclick="logoutVoter()">Sign Out</button>
-          </div>
+      <button class="btn-primary" onclick="submitVote()">Submit Vote</button>
 
-          <div id="receiptBox" class="receipt-box hidden">
-            <div style="font-weight: 700; color: var(--success);">✓ Vote Recorded</div>
-            <div style="font-size: 12px; color: var(--muted);" id="receiptTime"></div>
-            <div class="receipt-code" id="receiptHash"></div>
-            <div id="receiptChoices" style="font-size: 13px;"></div>
-            <div class="stack-gap">
-              <button type="button" class="btn btn-primary" onclick="downloadReceipt()">Download Receipt</button>
-            </div>
-          </div>
+      <div class="results">
+        <h2>Live Results</h2>
+        <div>Candidate A: <strong id="cA">0</strong></div>
+        <div class="bar-wrap"><div class="bar" id="bA"></div></div>
 
-          <div id="ballotPositions"></div>
+        <div>Candidate B: <strong id="cB">0</strong></div>
+        <div class="bar-wrap"><div class="bar" id="bB"></div></div>
 
-          <div class="stack-gap" id="submitArea">
-            <button type="button" class="btn btn-accent" id="castVoteBtn" onclick="castVote()">Submit Vote</button>
-          </div>
-        </div>
-      </section>
+        <div>Candidate C: <strong id="cC">0</strong></div>
+        <div class="bar-wrap"><div class="bar" id="bC"></div></div>
+      </div>
+    </div>
 
-      <!-- TAB 2: RESULTS -->
-      <section id="tab-results" class="hidden">
-        <div class="section-card">
-          <div class="card-heading">Live Election Results</div>
-          <p class="card-desc" id="resultsSummary">Total ballots cast: 0</p>
-          <div id="resultsContainer"></div>
-        </div>
-      </section>
+    <!-- Admin Section -->
+    <div id="adminSection" class="hidden">
+      <h2>Admin Dashboard</h2>
+      <p style="margin-bottom:10px;">Total Votes: <strong id="adminTotal">0</strong></p>
+      <p>Candidate A: <strong id="adminA">0</strong></p>
+      <p>Candidate B: <strong id="adminB">0</strong></p>
+      <p>Candidate C: <strong id="adminC">0</strong></p>
+      <button class="btn-danger" onclick="resetData()">Reset All Votes & Voters</button>
+      <button class="btn-secondary" onclick="closeAdmin()">Back</button>
+    </div>
 
-      <!-- TAB 3: ADMIN -->
-      <section id="tab-admin" class="hidden">
-        <div id="adminLoginCard" class="section-card">
-          <div class="card-heading">Admin Controls</div>
-          <p class="card-desc">Enter admin PIN (default: <code>admin123</code>)</p>
-          <form onsubmit="unlockAdmin(event)">
-            <div class="field">
-              <label for="adminPinInput">Admin PIN</label>
-              <input class="input" type="password" id="adminPinInput" placeholder="admin123" required />
-            </div>
-            <button type="submit" class="btn btn-primary">Unlock Admin</button>
-          </form>
-        </div>
-
-        <div id="adminDashboard" class="hidden">
-          <div class="section-card">
-            <div class="card-heading">Poll Management</div>
-            <p class="card-desc">Open or close voting and export results.</p>
-            <div class="stack-gap">
-              <button type="button" class="btn btn-outline" id="togglePollBtn" onclick="togglePolls()">Close Polls</button>
-              <button type="button" class="btn btn-outline" onclick="exportCsv()">Export Results CSV</button>
-              <button type="button" class="btn btn-danger" onclick="resetElection()">Reset All Election Data</button>
-            </div>
-          </div>
-
-          <div class="section-card">
-            <div class="card-heading">Add Candidate</div>
-            <form onsubmit="addCandidate(event)">
-              <div class="field">
-                <label for="newCandPos">Position</label>
-                <select class="select" id="newCandPos"></select>
-              </div>
-              <div class="field">
-                <label for="newCandName">Candidate Name</label>
-                <input class="input" type="text" id="newCandName" placeholder="Full name" required />
-              </div>
-              <div class="field">
-                <label for="newCandTagline">Tagline</label>
-                <input class="input" type="text" id="newCandTagline" placeholder="Short campaign motto" required />
-              </div>
-              <button type="submit" class="btn btn-primary">Add Candidate</button>
-            </form>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <nav class="bottom-nav" aria-label="App Navigation">
-      <button type="button" class="nav-btn active" id="nav-vote" onclick="switchTab('vote')">
-        <span>🗳️</span>
-        <span>Vote</span>
-      </button>
-      <button type="button" class="nav-btn" id="nav-results" onclick="switchTab('results')">
-        <span>📊</span>
-        <span>Results</span>
-      </button>
-      <button type="button" class="nav-btn" id="nav-admin" onclick="switchTab('admin')">
-        <span>⚙️</span>
-        <span>Admin</span>
-      </button>
-    </nav>
+    <div class="footer-link">
+      <button onclick="openAdmin()">Admin Dashboard</button>
+    </div>
   </div>
 
-  <div class="toast hidden" id="toast"></div>
-
   <script>
-    const STORAGE_KEY = "civicvote_github_app_v1";
-    const ADMIN_PIN = "admin123";
+    const KEY_USERS = "ovs_users_v1";
+    const KEY_VOTES = "ovs_votes_v1";
+    const KEY_USER = "ovs_current_v1";
 
-    const INITIAL_DATA = {
-      pollsOpen: true,
-      positions: [
-        { id: "pres", title: "President" },
-        { id: "sec", title: "Secretary" }
-      ],
-      candidates: [
-        { id: "c1", positionId: "pres", name: "Alex Rivera", tagline: "Clear voice, real action", votes: 4 },
-        { id: "c2", positionId: "pres", name: "Samira Patel", tagline: "Community first every day", votes: 6 },
-        { id: "c3", positionId: "sec", name: "Jordan Kim", tagline: "Organized & transparent", votes: 5 },
-        { id: "c4", positionId: "sec", name: "Taylor Brooks", tagline: "Fast updates for everyone", votes: 5 }
-      ],
-      voters: [
-        { id: "V-101", name: "Demo Voter", pin: "1234", voted: false, hash: null, time: null, picks: null }
-      ]
-    };
+    const getUsers = () => JSON.parse(localStorage.getItem(KEY_USERS) || "[]");
+    const setUsers = (u) => localStorage.setItem(KEY_USERS, JSON.stringify(u));
+    const getVotes = () => JSON.parse(localStorage.getItem(KEY_VOTES) || '{"A":0,"B":0,"C":0}');
+    const setVotes = (v) => localStorage.setItem(KEY_VOTES, JSON.stringify(v));
+    const getCurrent = () => JSON.parse(localStorage.getItem(KEY_USER) || "null");
+    const setCurrent = (u) => u ? localStorage.setItem(KEY_USER, JSON.stringify(u)) : localStorage.removeItem(KEY_USER);
 
-    let db = loadDb();
-    let currentVoter = null;
-    let picks = {};
-    let adminOpen = false;
+    function registerVoter() {
+      const name = document.getElementById("regName").value.trim();
+      const pin = document.getElementById("regPin").value.trim();
+      if (!name || !pin) return alert("Enter both name and PIN.");
 
-    function loadDb() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || structuredClone(INITIAL_DATA);
-      } catch {
-        return structuredClone(INITIAL_DATA);
+      const users = getUsers();
+      if (users.some(u => u.name.toLowerCase() === name.toLowerCase())) {
+        return alert("Voter already registered. Please login.");
       }
+
+      users.push({ name, pin, voted: false });
+      setUsers(users);
+      document.getElementById("regName").value = "";
+      document.getElementById("regPin").value = "";
+      alert("Registration successful! Please login.");
     }
 
-    function saveDb() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-    }
-
-    function toast(msg) {
-      const el = document.getElementById("toast");
-      el.textContent = msg;
-      el.classList.remove("hidden");
-      clearTimeout(toast._t);
-      toast._t = setTimeout(() => el.classList.add("hidden"), 2400);
-    }
-
-    function updateHeaderBadge() {
-      const badge = document.getElementById("pollBadge");
-      badge.textContent = db.pollsOpen ? "Polls Open" : "Polls Closed";
-      badge.classList.toggle("closed", !db.pollsOpen);
-    }
-
-    function switchTab(tab) {
-      ["vote", "results", "admin"].forEach(t => {
-        document.getElementById(`tab-${t}`).classList.toggle("hidden", t !== tab); document.getElementById(`nav-${t}`).classList.toggle("active", t === tab);
-      });
-      if (tab === "results") renderResults();
-      if (tab === "admin") renderAdmin();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function setAuthTab(mode) {
-      const isLogin = mode === "login";
-      document.getElementById("switchLogin").classList.toggle("active", isLogin);
-      document.getElementById("switchRegister").classList.toggle("active", !isLogin);
-      document.getElementById("loginForm").classList.toggle("hidden", !isLogin);
-      document.getElementById("registerForm").classList.toggle("hidden", isLogin);
-    }
-
-    function fillDemoVoter() {
-      setAuthTab("login");
-      document.getElementById("loginId").value = "V-101";
-      document.getElementById("loginPin").value = "1234";
-      toast("Demo credentials filled");
-    }
-
-    function loginVoter(e) {
-      e.preventDefault();
-      const id = document.getElementById("loginId").value.trim().toUpperCase();
+    function loginVoter() {
+      const name = document.getElementById("loginName").value.trim();
       const pin = document.getElementById("loginPin").value.trim();
-      const found = db.voters.find(v => v.id.toUpperCase() === id && v.pin === pin);
-      if (!found) return toast("Invalid Voter ID or PIN");
+      const user = getUsers().find(u => u.name.toLowerCase() === name.toLowerCase() && u.pin === pin);
+      if (!user) return alert("Invalid name or PIN.");
 
-      currentVoter = found.id;
-      picks = found.picks ? { ...found.picks } : {};
-      e.target.reset();
-      renderBallotView();
-      toast(`Welcome, ${found.name}`); }  function registerVoter(e) { e.preventDefault(); const name = document.getElementById("regName").value.trim(); const pin = document.getElementById("regPin").value.trim(); const newId = `V-${102 + db.voters.length}`;
-      db.voters.push({ id:newId, name, pin, voted: false, hash: null, time: null, picks: null });
-      saveDb();
-      currentVoter = newId;
-      picks = {};
-      e.target.reset();
-      renderBallotView();
-      toast(`Registered! Voter ID: ${newId}`); }  function logoutVoter() { currentVoter = null; picks = {}; document.getElementById("authSection").classList.remove("hidden"); document.getElementById("ballotSection").classList.add("hidden"); }  function renderBallotView() { const voter = db.voters.find(v => v.id === currentVoter); if (!voter) return;  document.getElementById("authSection").classList.add("hidden"); document.getElementById("ballotSection").classList.remove("hidden"); document.getElementById("activeVoterName").textContent = voter.name; document.getElementById("activeVoterId").textContent = voter.id;  const receiptBox = document.getElementById("receiptBox"); const submitArea = document.getElementById("submitArea");  if (voter.voted) { receiptBox.classList.remove("hidden"); submitArea.classList.add("hidden"); document.getElementById("receiptTime").textContent = voter.time; document.getElementById("receiptHash").textContent = `Receipt: ${voter.hash}`;
-        document.getElementById("receiptChoices").innerHTML = db.positions.map(p => {
-          const c = db.candidates.find(x => x.id === voter.picks?.[p.id]);
-          return `<div><strong>${esc(p.title)}:</strong>${c ? esc(c.name) : "-"}</div>`;
-        }).join("");
-      } else {
-        receiptBox.classList.add("hidden");
-        submitArea.classList.remove("hidden");
+      setCurrent(user);
+      document.getElementById("loginName").value = "";
+      document.getElementById("loginPin").value = "";
+      showVote();
+    }
+
+    function logoutVoter() {
+      setCurrent(null);
+      showAuth();
+    }
+
+    function submitVote() {
+      const current = getCurrent();
+      if (!current) return showAuth();
+
+      const users = getUsers();
+      const idx = users.findIndex(u => u.name.toLowerCase() === current.name.toLowerCase());
+      if (idx !== -1 && users[idx].voted) {
+        return alert("You have already voted!");
       }
 
-      const locked = voter.voted || !db.pollsOpen;
-      document.getElementById("ballotPositions").innerHTML = db.positions.map(pos => {
-        const list = db.candidates.filter(c => c.positionId === pos.id);
-        return `
-          <div class="section-card">
-            <div class="card-heading">${esc(pos.title)}</div>
-            <p class="card-desc">Tap one candidate</p>
-            ${list.map(c => {
-              const sel = picks[pos.id] === c.id;
-              return `
-                <div class="candidate-option ${sel ? "selected" : ""}" onclick="${locked ? "" : `choose('${pos.id}', '${c.id}')`}">
-                  <div>
-                    <div class="candidate-name">${esc(c.name)}</div>
-                    <div class="candidate-tagline">${esc(c.tagline)}</div>
-                  </div>
-                  <div class="radio-ring">${sel ? "✓" : ""}</div>
-                </div>
-              `;
-            }).join("")}
-          </div>
-        `;
-      }).join("");
+      const chosen = document.querySelector('input[name="cand"]:checked');
+      if (!chosen) return alert("Please select a candidate.");
 
-      const btn = document.getElementById("castVoteBtn");
-      const allPicked = db.positions.every(p => Boolean(picks[p.id]));
-      btn.disabled = locked || !allPicked;
-      btn.textContent = !db.pollsOpen ? "Polls Closed" : "Submit Vote";
-    }
+      const votes = getVotes();
+      votes[chosen.value] += 1;
+      setVotes(votes);
 
-    function choose(posId, candId) {
-      picks[posId] = candId;
-      renderBallotView();
-    }
+      if (idx !== -1) {
+        users[idx].voted = true;
+        setUsers(users);
+        setCurrent(users[idx]);
+      }
 
-    async function sha256(text) {
-      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
-    }
-
-    async function castVote() {
-      const voter = db.voters.find(v => v.id === currentVoter);
-      if (!voter || voter.voted || !db.pollsOpen) return;
-
-      db.positions.forEach(p => {
-        const c = db.candidates.find(x => x.id === picks[p.id]);
-        if (c) c.votes += 1;
-      });
-
-      const time = new Date().toLocaleString();
-      const hash = await sha256(`${voter.id}\vert{}${JSON.stringify(picks)}|${time}`); voter.voted = true; voter.time = time; voter.hash = hash; voter.picks = { ...picks };  saveDb(); renderBallotView(); toast("Vote submitted!"); }  function downloadReceipt() { const voter = db.voters.find(v => v.id === currentVoter); if (!voter \vert{}\vert{} !voter.voted) return; const content = [ "CIVICVOTE RECEIPT", `Voter: ${voter.name} (${voter.id})`, `Time: ${voter.time}`,
-        `Hash: ${voter.hash}` ].join("\n"); const blob = new Blob([content], { type: "text/plain" }); const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = `receipt-${voter.id}.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
+      renderResults();
+      alert("Vote submitted!");
     }
 
     function renderResults() {
-      const totalBallots = db.voters.filter(v => v.voted).length;
-      document.getElementById("resultsSummary").textContent = `Recorded voter ballots: ${totalBallots}`;
+      const v = getVotes();
+      const total = v.A + v.B + v.C;
 
-      document.getElementById("resultsContainer").innerHTML = db.positions.map(pos => {
-        const list = db.candidates.filter(c => c.positionId === pos.id).sort((a, b) => b.votes - a.votes);
-        const sum = list.reduce((acc, c) => acc + c.votes, 0);
-        return `
-          <div style="margin-bottom: 18px;">
-            <div style="font-weight: 700; font-size: 14px; margin-bottom: 8px;">${esc(pos.title)}</div>${list.map(c => {
-              const pct = sum ? Math.round((c.votes / sum) * 100) : 0;
-              return `
-                <div class="tally-item">
-                  <div class="tally-meta">
-                    <span>${esc(c.name)}</span>
-                    <span>${c.votes} (${pct}%)</span>
-                  </div>
-                  <div class="bar-bg"><div class="bar-fill" style="width: ${pct}%"></div></div>
-                </div>
-              `;
-            }).join("")}
-          </div>
-        `;
-      }).join("");
+      document.getElementById("cA").textContent = v.A;
+      document.getElementById("cB").textContent = v.B;
+      document.getElementById("cC").textContent = v.C;
+
+      document.getElementById("bA").style.width = total ? `${(v.A / total) * 100}%` : "0%";
+      document.getElementById("bB").style.width = total ? `${(v.B / total) * 100}%` : "0%";
+      document.getElementById("bC").style.width = total ? `${(v.C / total) * 100}%` : "0%";
+
+      document.getElementById("adminTotal").textContent = total;
+      document.getElementById("adminA").textContent = v.A;
+      document.getElementById("adminB").textContent = v.B;
+      document.getElementById("adminC").textContent = v.C;
     }
 
-    function unlockAdmin(e) {
-      e.preventDefault();
-      if (document.getElementById("adminPinInput").value.trim() !== ADMIN_PIN) {
-        return toast("Wrong admin PIN");
+    function openAdmin() {
+      const pass = prompt("Enter admin password (default: admin):");
+      if (pass === "admin") {
+        renderResults();
+        document.getElementById("authSection").classList.add("hidden");
+        document.getElementById("voteSection").classList.add("hidden");
+        document.getElementById("adminSection").classList.remove("hidden");
+      } else if (pass !== null) {
+        alert("Wrong password.");
       }
-      adminOpen = true;
-      e.target.reset();
-      renderAdmin();
-      toast("Admin unlocked");
     }
 
-    function renderAdmin() {
-      document.getElementById("adminLoginCard").classList.toggle("hidden", adminOpen);
-      document.getElementById("adminDashboard").classList.toggle("hidden", !adminOpen);
-      if (!adminOpen) return;
-
-      document.getElementById("togglePollBtn").textContent = db.pollsOpen ? "Close Polls" : "Open Polls";
-      document.getElementById("newCandPos").innerHTML = db.positions
-        .map(p => `<option value="${p.id}">${esc(p.title)}</option>`)
-        .join("");
+    function closeAdmin() {
+      document.getElementById("adminSection").classList.add("hidden");
+      getCurrent() ? showVote() : showAuth();
     }
 
-    function togglePolls() {
-      db.pollsOpen = !db.pollsOpen;
-      saveDb();
-      updateHeaderBadge();
-      renderAdmin();
-      if (currentVoter) renderBallotView();
-      toast(db.pollsOpen ? "Polls opened" : "Polls closed");
-    }
-
-    function addCandidate(e) {
-      e.preventDefault();
-      const positionId = document.getElementById("newCandPos").value;
-      const name = document.getElementById("newCandName").value.trim();
-      const tagline = document.getElementById("newCandTagline").value.trim();
-      db.candidates.push({ id: `c_${Date.now()}`, positionId, name, tagline, votes: 0 }); saveDb(); e.target.reset(); toast("Candidate added"); }  function exportCsv() { const rows = ["Position,Candidate,Votes"]; db.positions.forEach(p => { db.candidates.filter(c => c.positionId === p.id).forEach(c => { rows.push(`"${p.title}","${c.name}",${c.votes}`);
-        });
-      });
-      const blob = new Blob([rows.join("\n")], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "voting-results.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function resetElection() {
+    function resetData() {
       if (!confirm("Reset all votes and voters?")) return;
-      db = structuredClone(INITIAL_DATA);
-      currentVoter = null;
-      picks = {};
-      saveDb();
-      updateHeaderBadge();
-      logoutVoter();
-      renderAdmin();
-      toast("Election reset");
+      localStorage.removeItem(KEY_USERS);
+      localStorage.removeItem(KEY_VOTES);
+      localStorage.removeItem(KEY_USER);
+      renderResults();
+      showAuth();
+      alert("Election data reset.");
     }
 
-    function esc(s) {
-      return String(s).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+    function showAuth() {
+      document.getElementById("authSection").classList.remove("hidden");
+      document.getElementById("voteSection").classList.add("hidden");
+      document.getElementById("adminSection").classList.add("hidden");
     }
 
-    updateHeaderBadge();
+    function showVote() {
+      const user = getCurrent();
+      if (!user) return showAuth();
+      document.getElementById("welcomeLabel").textContent = `Welcome, ${user.name}`;
+      document.getElementById("authSection").classList.add("hidden");
+      document.getElementById("voteSection").classList.remove("hidden");
+      document.getElementById("adminSection").classList.add("hidden");
+      renderResults();
+    }
+
+    renderResults();
+    if (getCurrent()) showVote();
   </script>
 </body>
-</html>               
+</html>
+
