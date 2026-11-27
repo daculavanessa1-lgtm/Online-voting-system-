@@ -1,0 +1,11 @@
+# Project Prompt & Requirements
+
+## Goal
+Build an Online Voting System in a single `index.html` file ready to host on GitHub Pages.
+
+## Core Features
+- Voter registration with name and PIN
+- Voter login and logout
+- Candidate selection and one-vote-per-voter check
+- Live vote counts and progress bars
+- Admin dashboard (default password: `admin`) to view totals and reset data
